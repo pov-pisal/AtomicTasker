@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atomic Tasker</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Link to Inter font for modern, clean typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <h1 class="title">⚛ Atomic Tasker</h1>
+            <p class="subtitle">Build habits, one task at a time</p>
+        </header>
+
+        <!-- Category Filter Section -->
+        <div class="filter-section">
+            <label for="categoryFilter" class="filter-label">Filter by Category:</label>
+            <select id="categoryFilter" class="category-filter">
+                <option value="">All Tasks</option>
+                <!-- Category options dynamically added here -->
+            </select>
+        </div>
+
+        <!-- Add Task Section -->
+        <div class="add-task-section">
+            <input 
+                type="text" 
+                id="taskInput" 
+                class="task-input" 
+                placeholder="Add a new task..."
+                maxlength="100"
+            >
+            <select id="categorySelect" class="category-select">
+                <option value="">No Category</option>
+                <!-- Category options dynamically added here -->
+            </select>
+            <button id="addTaskBtn" class="add-btn">+ Add Task</button>
+        </div>
+
+        <!-- Category Management Section -->
+        <div class="category-management">
+            <details class="category-details">
+                <summary class="category-summary">📂 Manage Categories</summary>
+                <div class="category-input-group">
+                    <div class="emoji-picker-container">
+                        <button id="emojiPickerBtn" class="emoji-picker-btn">😀</button>
+                        <div id="emojiPicker" class="emoji-picker-menu" style="display: none;">
+                            <div class="emoji-picker-grid">
+                                💻 📚 🧘 💪 🎯 🏆 ⭐ 🔥 🎨 🎵 🏃 🍎 😴 🧠 📞
+                            </div>
+                        </div>
+                    </div>
+                    <input 
+                        type="text" 
+                        id="emojiInput" 
+                        class="emoji-input" 
+                        placeholder="Selected emoji"
+                        maxlength="2"
+                        readonly
+                    >
+                    <input 
+                        type="text" 
+                        id="categoryInput" 
+                        class="category-input" 
+                        placeholder="Category name"
+                        maxlength="50"
+                    >
+                    <button id="addCategoryBtn" class="add-category-btn">+ Category</button>
+                </div>
+                <div id="categoriesList" class="categories-list">
+                    <!-- Categories dynamically added here -->
+                </div>
+            </details>
+        </div>
+
+        <!-- Tasks List Section -->
+        <div class="tasks-container">
+            <h2 class="tasks-header">📋 Your Tasks</h2>
+            <div id="tasksList" class="tasks-list">
+                <!-- Tasks dynamically added here -->
+            </div>
+            <div id="emptyState" class="empty-state">
+                <p>No tasks yet. Start your atomic journey! 🚀</p>
+            </div>
+        </div>
+
+        <!-- Motivational Quote Section -->
+        <div class="motivation-section">
+            <div class="quote-card">
+                <p id="motivationQuote" class="quote-text">Loading your daily wisdom...</p>
+                <button id="newQuoteBtn" class="new-quote-btn">New Quote</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Task Modal -->
+    <div id="editModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Task</h3>
+                <button class="modal-close" id="modalCloseBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input 
+                    type="text" 
+                    id="editTaskInput" 
+                    class="task-input" 
+                    placeholder="Task name"
+                    maxlength="100"
+                >
+                <select id="editCategorySelect" class="category-select">
+                    <option value="">No Category</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelEditBtn" class="btn-secondary">Cancel</button>
+                <button id="saveEditBtn" class="btn-primary">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal" style="display: none;">
+        <div class="modal-content confirm-content">
+            <div class="modal-body confirm-body">
+                <div class="confirm-icon">⚠️</div>
+                <h3 id="confirmTitle" class="confirm-title">Confirm Action</h3>
+                <p id="confirmMessage" class="confirm-message">Are you sure?</p>
+            </div>
+            <div class="modal-footer confirm-footer">
+                <button id="confirmCancelBtn" class="btn-secondary">Cancel</button>
+                <button id="confirmOkBtn" class="btn-danger">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

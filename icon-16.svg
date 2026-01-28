@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <!-- Background -->
+  <rect width="16" height="16" rx="3" fill="#4f46e5"/>
+  
+  <!-- Atom nucleus -->
+  <circle cx="8" cy="8" r="2" fill="#ffffff"/>
+  
+  <!-- Electron orbits -->
+  <ellipse cx="8" cy="8" rx="5" ry="2.5" fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.8"/>
+  <ellipse cx="8" cy="8" rx="5" ry="2.5" fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.8" transform="rotate(60 8 8)"/>
+  <ellipse cx="8" cy="8" rx="5" ry="2.5" fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.8" transform="rotate(120 8 8)"/>
+  
+  <!-- Electrons -->
+  <circle cx="13" cy="8" r="0.7" fill="#ffffff"/>
+  <circle cx="5.5" cy="10.3" r="0.7" fill="#ffffff"/>
+  <circle cx="5.5" cy="5.7" r="0.7" fill="#ffffff"/>
+</svg>
