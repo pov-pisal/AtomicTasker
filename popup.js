@@ -40,7 +40,7 @@ const popularEmojis = [
 // DOM ELEMENTS
 // ============================================================================
 
-let taskInput, categoryInput, emojiInput, categorySelect, categoryFilter, quickAddBtn, advancedAddBtn, addCategoryBtn, tasksList, categoriesList, motivationQuote, newQuoteBtn, emptyState, emojiPickerBtn, emojiPicker, editModal, editTaskInput, editCategorySelect, editTaskNotes, editTaskLink, editTaskDate, saveEditBtn, advancedAddModal, advTaskInput, advCategorySelect, advTaskNotes, advTaskLink, advTaskDate, advAddBtn, advCancelBtn;
+let taskInput, categoryInput, emojiInput, categorySelect, categoryFilter, quickAddBtn, advancedAddBtn, addCategoryBtn, tasksList, categoriesList, motivationQuote, newQuoteBtn, emptyState, emojiPickerBtn, emojiPicker, editModal, editTaskInput, editCategorySelect, editTaskNotes, editTaskLink, editTaskDate, saveEditBtn, advancedAddModal, advTaskInput, advCategorySelect, advTaskNotes, advTaskLink, advTaskDate, advAddBtn, advCancelBtn, completedTasksList, completedEmptyState, signInBtn, signOutBtn, userInfo, userEmail, syncStatus, syncStatusText, syncNowBtn;
 
 function initializeDOMElements() {
     taskInput = document.getElementById('taskInput');
@@ -52,6 +52,8 @@ function initializeDOMElements() {
     advancedAddBtn = document.getElementById('advancedAddBtn');
     addCategoryBtn = document.getElementById('addCategoryBtn');
     tasksList = document.getElementById('tasksList');
+    completedTasksList = document.getElementById('completedTasksList');
+    completedEmptyState = document.getElementById('completedEmptyState');
     categoriesList = document.getElementById('categoriesList');
     motivationQuote = document.getElementById('motivationQuote');
     newQuoteBtn = document.getElementById('newQuoteBtn');
@@ -73,6 +75,13 @@ function initializeDOMElements() {
     advTaskDate = document.getElementById('advTaskDate');
     advAddBtn = document.getElementById('advAddBtn');
     advCancelBtn = document.getElementById('advCancelBtn');
+    signInBtn = document.getElementById('signInBtn');
+    signOutBtn = document.getElementById('signOutBtn');
+    userInfo = document.getElementById('userInfo');
+    userEmail = document.getElementById('userEmail');
+    syncStatus = document.getElementById('syncStatus');
+    syncStatusText = document.getElementById('syncStatusText');
+    syncNowBtn = document.getElementById('syncNowBtn');
 }
 
 // ============================================================================
@@ -134,16 +143,27 @@ let state = {
 // ============================================================================
 
 /**
+ * Check if wizard should be shown
+ */
+function checkAndShowWizard() {
+    chrome.storage.local.get(['wizardCompleted'], (result) => {
+        if (!result.wizardCompleted) {
+            // First time user - show wizard
+            window.location.href = 'setup-wizard.html';
+        } else {
+            // Wizard already completed - show main extension
+            init();
+        }
+    });
+}
+
+/**
  * Initialize the extension when the popup loads
  * Loads data from storage, renders UI, and sets up event listeners
  */
 function init() {
     initializeDOMElements();
     loadDataFromStorage();
-    renderCategories();
-    renderCategoryFilter();
-    renderCategorySelect();
-    renderTasks();
     displayRandomQuote();
     setupEventListeners();
     setupEmojiPicker();
@@ -154,40 +174,118 @@ function init() {
 // ============================================================================
 
 /**
- * Load tasks and categories from chrome.storage.local
- * If no data exists, initialize with empty arrays
+ * Load tasks and categories from chrome.storage
+ * Uses chrome.storage.sync for cross-device sync when available,
+ * falls back to chrome.storage.local for offline access
  */
 function loadDataFromStorage() {
-    chrome.storage.local.get(['tasks', 'categories'], (result) => {
-        state.tasks = result.tasks || [];
-        state.categories = result.categories || [];
+    // First load from local storage (fast, always available)
+    chrome.storage.local.get(['tasks', 'categories'], (localResult) => {
+        state.tasks = localResult.tasks || [];
+        state.categories = localResult.categories || [];
+        
+        // Then try to sync with cloud storage
+        chrome.storage.sync.get(['tasks', 'categories'], (cloudResult) => {
+            if (cloudResult.tasks || cloudResult.categories) {
+                // Cloud has data - merge intelligently
+                const cloudTasks = cloudResult.tasks || [];
+                const cloudCategories = cloudResult.categories || [];
+                
+                // Merge tasks (keep newer versions)
+                state.tasks = mergeTasks(state.tasks, cloudTasks);
+                state.categories = mergeCategories(state.categories, cloudCategories);
+                
+                // Update local storage with merged data
+                chrome.storage.local.set({
+                    tasks: state.tasks,
+                    categories: state.categories
+                });
+            }
+        });
         
         // Refresh UI after loading data
         renderCategories();
         renderCategoryFilter();
         renderCategorySelect();
         renderTasks();
+        renderCompletedTasks();
     });
 }
 
 /**
- * Save tasks to chrome.storage.local
+ * Merge tasks from local and cloud storage intelligently
+ */
+function mergeTasks(localTasks, cloudTasks) {
+    if (!cloudTasks || cloudTasks.length === 0) return localTasks;
+    
+    const cloudMap = new Map(cloudTasks.map(t => [t.id, t]));
+    const merged = new Map(localTasks.map(t => [t.id, t]));
+    
+    cloudTasks.forEach(cloudTask => {
+        const localTask = merged.get(cloudTask.id);
+        if (!localTask) {
+            merged.set(cloudTask.id, cloudTask);
+        } else {
+            // Keep newer version based on modifiedAt
+            const localTime = new Date(localTask.modifiedAt || localTask.createdAt || 0);
+            const cloudTime = new Date(cloudTask.modifiedAt || cloudTask.createdAt || 0);
+            if (cloudTime > localTime) {
+                merged.set(cloudTask.id, cloudTask);
+            }
+        }
+    });
+    
+    return Array.from(merged.values());
+}
+
+/**
+ * Merge categories from local and cloud storage
+ */
+function mergeCategories(localCategories, cloudCategories) {
+    if (!cloudCategories || cloudCategories.length === 0) return localCategories;
+    
+    const merged = new Map(localCategories.map(c => [c.id, c]));
+    
+    cloudCategories.forEach(cloudCat => {
+        if (!merged.has(cloudCat.id)) {
+            merged.set(cloudCat.id, cloudCat);
+        }
+    });
+    
+    return Array.from(merged.values());
+}
+
+/**
+ * Save tasks to chrome.storage.local AND chrome.storage.sync
  * Called after any task modification
  */
 function saveTasksToStorage() {
-    chrome.storage.local.set({ tasks: state.tasks }, () => {
-        // Data saved successfully
+    // Save to local storage (fast, immediate)
+    chrome.storage.local.set({ tasks: state.tasks });
+    
+    // Sync to cloud storage (for cross-device sync)
+    // Add modifiedAt timestamp for conflict resolution
+    const tasksForSync = state.tasks.map(t => ({
+        ...t,
+        modifiedAt: new Date().toISOString()
+    }));
+    
+    chrome.storage.sync.set({ 
+        tasks: tasksForSync,
+        lastModified: new Date().toISOString()
     });
 }
 
 /**
- * Save categories to chrome.storage.local
+ * Save categories to chrome.storage.local AND chrome.storage.sync
  * Called after any category modification
  */
 function saveCategoriesToStorage() {
-    chrome.storage.local.set({ categories: state.categories }, () => {
-        // Data saved successfully
-    });
+    // Save to local storage (fast, immediate)
+    chrome.storage.local.set({ categories: state.categories });
+    
+    // Sync to cloud storage (for cross-device sync)
+    chrome.storage.sync.set({ categories: state.categories });
 }
 
 // ============================================================================
@@ -215,11 +313,23 @@ function addTask(text, categoryId, notes = '', link = '', dueDate = '') {
         link: link,
         dueDate: dueDate,
         createdAt: new Date().toISOString(),
+        isFavorite: false,
     };
 
     // Add task to state and save to storage
     state.tasks.push(task);
     saveTasksToStorage();
+
+    // Sync with Google if authenticated
+    if (googleSyncState.isAuthenticated && navigator.onLine) {
+        createGoogleTask(task).catch(error => {
+            console.error('Failed to sync task to Google:', error);
+            queueOfflineChange({ type: 'create', task });
+        });
+    } else if (!navigator.onLine) {
+        // Queue for later if offline
+        queueOfflineChange({ type: 'create', task });
+    }
 
     // Update UI
     renderTasks();
@@ -292,6 +402,7 @@ function deleteTask(taskId) {
             state.tasks = state.tasks.filter((task) => task.id !== taskId);
             saveTasksToStorage();
             renderTasks();
+            renderCompletedTasks();
         }
     );
 }
@@ -368,6 +479,21 @@ function toggleTaskCompletion(taskId) {
         task.completed = !task.completed;
         saveTasksToStorage();
         renderTasks();
+        renderCompletedTasks();
+    }
+}
+
+/**
+ * Toggle task favorite status (only for completed tasks)
+ * @param {number} taskId - The ID of the task to toggle
+ */
+function toggleTaskFavorite(taskId) {
+    const task = state.tasks.find((t) => t.id === taskId);
+    if (task && task.completed) {
+        task.isFavorite = !task.isFavorite;
+        saveTasksToStorage();
+        renderTasks();
+        renderCompletedTasks();
     }
 }
 
@@ -475,10 +601,10 @@ function deleteCategory(categoryId) {
  * Shows empty state message if no tasks exist
  */
 function renderTasks() {
-    // Filter tasks based on selected category
-    let filteredTasks = state.tasks;
+    // Filter tasks based on selected category and exclude completed tasks
+    let filteredTasks = state.tasks.filter((task) => !task.completed);
     if (state.selectedCategoryFilter) {
-        filteredTasks = state.tasks.filter(
+        filteredTasks = filteredTasks.filter(
             (task) => task.categoryId === state.selectedCategoryFilter
         );
     }
@@ -549,20 +675,31 @@ function renderTasks() {
 
             <!-- Task Actions -->
             <div class="task-actions">
-                <button 
-                    class="edit-btn" 
-                    data-edit-id="${task.id}"
-                    title="Edit task"
-                >
-                    ✏️
-                </button>
-                <button 
-                    class="delete-btn" 
-                    data-delete-id="${task.id}"
-                    title="Delete task"
-                >
-                    🗑️
-                </button>
+                ${task.completed ? `
+                    <button 
+                        class="favorite-btn" 
+                        data-favorite-id="${task.id}"
+                        title="${task.isFavorite ? 'Remove from favorites' : 'Add to favorites'}"
+                    >
+                        ${task.isFavorite ? '⭐' : '☆'}
+                    </button>
+                ` : ''}
+                ${task.completed ? `
+                    <button 
+                        class="edit-btn" 
+                        data-edit-id="${task.id}"
+                        title="Edit task"
+                    >
+                        ✏️
+                    </button>
+                    <button 
+                        class="delete-btn" 
+                        data-delete-id="${task.id}"
+                        title="Delete task"
+                    >
+                        🗑️
+                    </button>
+                ` : ''}
             </div>
         `;
         tasksList.appendChild(taskElement);
@@ -644,6 +781,90 @@ function renderCategorySelect() {
 // ============================================================================
 
 /**
+ * Render all completed tasks in a collapsible section
+ * Shows completed tasks with their favorite status and option to mark as incomplete
+ */
+function renderCompletedTasks() {
+    // Get all completed tasks
+    const completedTasks = state.tasks.filter((task) => task.completed);
+
+    // Clear completed tasks list
+    completedTasksList.innerHTML = '';
+
+    // Show empty state or render tasks
+    if (completedTasks.length === 0) {
+        completedEmptyState.style.display = 'block';
+        return;
+    }
+
+    completedEmptyState.style.display = 'none';
+
+    // Render each completed task
+    completedTasks.forEach((task) => {
+        const taskElement = document.createElement('div');
+        taskElement.className = 'completed-task-item';
+        
+        // Format due date if exists
+        let dueDateDisplay = '';
+        if (task.dueDate) {
+            const date = new Date(task.dueDate);
+            dueDateDisplay = `<span class="task-date">📅 ${date.toLocaleDateString()}</span>`;
+        }
+        
+        // Link preview if exists
+        let linkDisplay = '';
+        if (task.link) {
+            const isValidUrl = task.link.startsWith('http://') || task.link.startsWith('https://');
+            linkDisplay = `<a href="${task.link}" class="task-link" target="_blank" rel="noopener noreferrer" ${isValidUrl ? '' : 'disabled'}>🔗 Link</a>`;
+        }
+        
+        // Notes preview if exists
+        let notesDisplay = '';
+        if (task.notes) {
+            const preview = task.notes.substring(0, 50) + (task.notes.length > 50 ? '...' : '');
+            notesDisplay = `<div class="task-notes-preview">📝 ${escapeHtml(preview)}</div>`;
+        }
+        
+        taskElement.innerHTML = `
+            <!-- Favorite Status -->
+            <div class="completed-status">
+                ${task.isFavorite ? '⭐' : '✓'}
+            </div>
+
+            <!-- Task Content -->
+            <div class="task-content">
+                <span class="task-text completed-text">${escapeHtml(task.text)}</span>
+                ${task.categoryId ? `<span class="task-category">${getCategoryLabel(task.categoryId)}</span>` : ''}
+                <div class="task-metadata">
+                    ${dueDateDisplay}
+                    ${linkDisplay}
+                </div>
+                ${notesDisplay}
+            </div>
+
+            <!-- Task Actions -->
+            <div class="task-actions">
+                <button 
+                    class="undo-btn" 
+                    data-undo-id="${task.id}"
+                    title="Mark as incomplete"
+                >
+                    ↶
+                </button>
+                <button 
+                    class="delete-btn" 
+                    data-delete-id="${task.id}"
+                    title="Delete task"
+                >
+                    🗑️
+                </button>
+            </div>
+        `;
+        completedTasksList.appendChild(taskElement);
+    });
+}
+
+/**
  * Display a random motivational quote from the quotes database
  * Called when popup opens or when user requests a new quote
  */
@@ -660,6 +881,32 @@ function displayRandomQuote() {
  * Set up all event listeners for user interactions
  */
 function setupEventListeners() {
+    // Google Sign In
+    signInBtn.addEventListener('click', async () => {
+        const success = await signInWithGoogle();
+        if (success) {
+            updateAuthUI();
+            syncStatus.style.display = 'flex';
+        }
+    });
+
+    // Google Sign Out
+    signOutBtn.addEventListener('click', async () => {
+        await signOutFromGoogle();
+        updateAuthUI();
+        syncStatus.style.display = 'none';
+    });
+
+    // Manual Sync
+    syncNowBtn.addEventListener('click', async () => {
+        await syncTasksToGoogle(state.tasks);
+    });
+
+    // Listen for sync status changes
+    window.addEventListener('syncStatusChanged', (e) => {
+        updateSyncStatusUI(e.detail.status);
+    });
+
     // Quick add task button
     quickAddBtn.addEventListener('click', quickAddTask);
 
@@ -741,12 +988,39 @@ function setupEventListeners() {
 
     // Event delegation for task actions
     tasksList.addEventListener('click', (e) => {
+        // Mark task as favorite
+        if (e.target.classList.contains('favorite-btn')) {
+            const taskId = parseInt(e.target.dataset.favoriteId);
+            toggleTaskFavorite(taskId);
+        }
         // Edit task
         if (e.target.classList.contains('edit-btn')) {
             const taskId = parseInt(e.target.dataset.editId);
             openEditModal(taskId);
         }
         // Delete task
+        if (e.target.classList.contains('delete-btn')) {
+            const taskId = parseInt(e.target.dataset.deleteId);
+            deleteTask(taskId);
+        }
+        // Handle link clicks
+        if (e.target.classList.contains('task-link')) {
+            const href = e.target.getAttribute('href');
+            if (href.startsWith('http://') || href.startsWith('https://')) {
+                window.open(href, '_blank');
+            }
+            e.preventDefault();
+        }
+    });
+
+    // Event delegation for completed tasks
+    completedTasksList.addEventListener('click', (e) => {
+        // Mark completed task as incomplete
+        if (e.target.classList.contains('undo-btn')) {
+            const taskId = parseInt(e.target.dataset.undoId);
+            toggleTaskCompletion(taskId);
+        }
+        // Delete completed task
         if (e.target.classList.contains('delete-btn')) {
             const taskId = parseInt(e.target.dataset.deleteId);
             deleteTask(taskId);
@@ -819,6 +1093,36 @@ function setupEmojiPicker() {
 // ============================================================================
 
 /**
+ * Update authentication UI based on google auth state
+ */
+function updateAuthUI() {
+    if (googleSyncState.isAuthenticated) {
+        signInBtn.style.display = 'none';
+        userInfo.style.display = 'flex';
+        userEmail.textContent = googleSyncState.userEmail;
+    } else {
+        signInBtn.style.display = 'block';
+        userInfo.style.display = 'none';
+    }
+}
+
+/**
+ * Update sync status UI
+ * @param {string} status - Sync status
+ */
+function updateSyncStatusUI(status) {
+    const statusMessages = {
+        'idle': 'Ready to sync',
+        'syncing': '⏳ Syncing...',
+        'synced': '✓ Synced',
+        'error': '✕ Sync failed',
+        'offline': '⚠ Offline'
+    };
+
+    syncStatusText.textContent = statusMessages[status] || status;
+}
+
+/**
  * Escape HTML special characters to prevent XSS attacks
  * @param {string} text - The text to escape
  * @returns {string} - Escaped text safe for HTML
@@ -838,5 +1142,6 @@ function escapeHtml(text) {
 // APPLICATION START
 // ============================================================================
 
-// Initialize the extension when the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', init);
+// Check if wizard should be shown, otherwise initialize the extension
+document.addEventListener('DOMContentLoaded', checkAndShowWizard);
+

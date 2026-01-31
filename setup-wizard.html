@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atomic Tasker - Welcome</title>
+    <link rel="stylesheet" href="wizard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="wizard-container">
+        <!-- Step 1: Welcome -->
+        <div class="wizard-step active" id="step-welcome">
+            <div class="wizard-content">
+                <div class="wizard-icon">🚀</div>
+                <h1>Welcome to Atomic Tasker</h1>
+                <p class="wizard-subtitle">Build consistent habits, one task at a time</p>
+                
+                <div class="wizard-features">
+                    <div class="feature">
+                        <span class="feature-icon">✓</span>
+                        <span>Create daily habits and tasks</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">✓</span>
+                        <span>Sync across all your devices</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">✓</span>
+                        <span>Track your progress</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">✓</span>
+                        <span>Work offline, auto-sync when online</span>
+                    </div>
+                </div>
+
+                <button class="wizard-btn primary" id="btnGetStarted">
+                    Get Started
+                </button>
+                <button class="wizard-btn secondary" id="btnSkip">
+                    Skip for Now
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2: Setup Complete -->
+        <div class="wizard-step" id="step-setup">
+            <div class="wizard-content">
+                <div class="wizard-icon success">✅</div>
+                <h1>You're All Set!</h1>
+                <p class="wizard-subtitle">Chrome Sync enabled</p>
+
+                <div class="success-info">
+                    <h3>What you get:</h3>
+                    <ul>
+                        <li>☁️ Tasks sync across all Chrome devices</li>
+                        <li>🔒 100% free, no accounts needed</li>
+                        <li>📱 Automatic cross-device sync</li>
+                        <li>💾 Your data is always backed up</li>
+                    </ul>
+                </div>
+
+                <button class="wizard-btn primary" id="btnComplete">
+                    Start Using Atomic Tasker
+                </button>
+            </div>
+        </div>
+
+        <!-- Progress Indicator -->
+        <div class="wizard-progress">
+            <div class="progress-dot" id="progress-0"></div>
+            <div class="progress-dot" id="progress-1"></div>
+        </div>
+    </div>
+
+    <script src="chrome-sync.js"></script>
+    <script src="setup-wizard.js"></script>
+</body>
+</html>

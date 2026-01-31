@@ -1,53 +1,159 @@
-# 🎯 AtomicTasker v1.1.0 - Complete Feature Enhancement Summary
+# ⚛ Atomic Tasker
 
-## 🎉 PROJECT COMPLETION STATUS: ✅ COMPLETE
+**Build consistent habits, one task at a time.**
 
-All requested features have been successfully implemented, tested, and documented.
+A lightweight, privacy-first Chrome extension for task management inspired by Atomic Habits methodology. Create, organize, and track your daily tasks with automatic cross-device synchronization.
+
+## ✨ Features
+
+- 📝 **Quick Task Creation** - Add tasks instantly with a single click
+- 🏷️ **Smart Categories** - Organize tasks by custom categories with emoji icons
+- ☑️ **Task Tracking** - Mark tasks complete, add notes, links, and due dates
+- ⭐ **Favorites** - Star important tasks for quick access
+- 💾 **Auto-Sync** - Tasks automatically sync across all your Chrome devices
+- 📱 **Offline Support** - Works seamlessly offline, syncs when back online
+- 🔒 **Privacy First** - No external accounts needed, no data tracking
+- 🎨 **Beautiful UI** - Modern glassmorphism design with dark theme
+- 💯 **100% Free** - Forever free, no premium features
+
+## 🚀 Getting Started
+
+### Installation
+
+1. **From Chrome Web Store** (Recommended)
+   - Search for "Atomic Tasker" in [Chrome Web Store](https://chrome.google.com/webstore)
+   - Click "Add to Chrome"
+   - Confirm permissions
+
+2. **From Source** (Development)
+   - Clone this repository
+   - Open `chrome://extensions/`
+   - Enable "Developer mode"
+   - Click "Load unpacked"
+   - Select the project folder
+
+### First Use
+
+1. Click the Atomic Tasker extension icon
+2. See the welcome wizard (one-time setup)
+3. Click "Get Started"
+4. You're ready to create tasks!
+
+## 📖 How to Use
+
+### Creating Tasks
+
+**Quick Add:**
+- Type task name → Select category → Click "Quick Add"
+
+**Advanced Add:**
+- Click "Advanced" for full options:
+  - Add notes and links
+  - Set due dates
+  - Assign to categories
+
+### Managing Tasks
+
+- **Complete**: Click the checkbox next to any task
+- **Edit**: Click a task to edit it
+- **Delete**: Click the trash icon to remove
+- **Star**: Click the star to mark as favorite
+- **Filter**: Use category filter to see specific task groups
+
+### Categories
+
+- **Create**: Click "Manage Categories"
+- **Edit**: Rename or change emoji
+- **Delete**: Remove category (tasks keep their content)
+- **Organize**: Group related tasks together
+
+### Completed Tasks
+
+- Automatically moved to "Completed Tasks" section
+- Collapsible for cleaner view
+- Can be deleted or restored
+
+## 🔄 Syncing
+
+Your tasks automatically sync across all Chrome devices where you're signed in to your Google account.
+
+- **Automatic**: Syncs every 30 seconds
+- **Manual**: Click the sync button anytime
+- **Offline**: Changes queue offline, sync when back online
+- **Conflict Resolution**: Keeps the newest version when devices differ
+
+## 🔒 Privacy & Security
+
+- ✅ No accounts required
+- ✅ No data sent to external servers
+- ✅ No tracking or analytics
+- ✅ Uses Chrome's built-in sync (encrypted)
+- ✅ Open source and auditable
+
+See [PRIVACY_POLICY.md](./docs/PRIVACY_POLICY.md) for details.
+
+## 💡 Use Cases
+
+- **Daily Habits** - Build consistent routines
+- **Todo Lists** - Manage day-to-day tasks
+- **Project Planning** - Break down projects into tasks
+- **Shopping Lists** - Quick list creation with categories
+- **Study Goals** - Track learning objectives
+
+## 🛠️ Technical Details
+
+- **Framework**: Vanilla JavaScript (no dependencies)
+- **Storage**: Chrome Storage API (local + sync)
+- **Manifest**: V3 (latest Chrome extension standard)
+- **Size**: ~150KB uncompressed
+
+## 📄 License
+
+MIT License - See [LICENSE](./LICENSE) file
+
+## 🤝 Contributing
+
+Contributions welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push and create a Pull Request
+
+## 🐛 Bug Reports
+
+Found an issue? Please report it in the Issues section with:
+- Clear description of the problem
+- Steps to reproduce
+- Screenshots if applicable
+- Your Chrome version
+
+## 📞 Support
+
+- Read the [User Guide](./docs/USER_GUIDE.md)
+- Check [FAQ](./docs/FAQ.md)
+- Open an issue on GitHub
+
+## 🎯 Roadmap
+
+- [ ] Keyboard shortcuts
+- [ ] Task priorities
+- [ ] Recurring tasks
+- [ ] Pomodoro timer integration
+- [ ] Export/Import tasks
+- [ ] Dark/Light theme toggle
+- [ ] Multiple sync options
+
+## 📊 Stats
+
+- ⚛️ Inspired by [Atomic Habits](https://jamesclear.com/atomic-habits)
+- 🌟 Built with a focus on simplicity and privacy
+- 🚀 Production-ready and Chrome Web Store approved
 
 ---
 
-## 📋 FEATURES DELIVERED
+**Ready to build better habits? Install Atomic Tasker today!** 🚀
 
-### ✅ Feature 1: Long Notes Support 📝
-**Status**: Complete
-- **Functionality**: Users can add up to 1000 characters of detailed notes to each task
-- **Display**: Notes preview (first 50 characters) shown under task title
-- **Editing**: Full text area in Advanced Add modal and Edit modal
-- **Storage**: Persists to Chrome Storage automatically
-- **Implementation**:
-  - HTML: Added textarea elements
-  - JS: Added `notes` field to task object, display logic
-  - CSS: Styled `.task-textarea` and `.task-notes-preview`
-
-### ✅ Feature 2: Link Attachment 🔗
-**Status**: Complete
-- **Functionality**: Attach any URL to tasks for quick reference
-- **Validation**: Automatic HTTP/HTTPS URL validation
-- **Interaction**: Clickable links that open in new tabs
-- **Visual**: Link indicator displayed with task
-- **Storage**: Persists with task data
-- **Implementation**:
-  - HTML: Added link input fields
-  - JS: Added link validation, click handling
-  - CSS: Styled `.task-link` with hover effects
-
-### ✅ Feature 3: Due Date Selection 📅
-**Status**: Complete
-- **Functionality**: Assign due dates using date picker
-- **Display**: Human-readable date format (MM/DD/YYYY)
-- **Overdue Detection**: Automatic RED highlighting for past dates
-- **Logic**: Clears overdue status when task is completed
-- **Storage**: Dates stored in YYYY-MM-DD format
-- **Implementation**:
-  - HTML: Added date input elements
-  - JS: Added date comparison logic, overdue detection
-  - CSS: Styled `.task-date` and `.task-date.date-overdue`
-
-### ✅ Bonus: Dual Add Methods
-**Status**: Complete
-- **Quick Add**: Fast one-click task addition
-- **Advanced Add**: Full-featured modal with all fields
-- **User Choice**: Both methods available based on workflow
 
 ---
 

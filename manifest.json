@@ -1,21 +1,24 @@
 {
   "manifest_version": 3,
   "name": "Atomic Tasker",
-  "version": "1.0.0",
-  "description": "A productivity extension inspired by Atomic Habits - build consistent habits through small, manageable tasks",
+  "version": "1.1.0",
+  "description": "Build consistent habits, one task at a time. Privacy-first task manager with automatic cross-device sync.",
+  "short_name": "Atomic Tasker",
   "permissions": ["storage"],
   "action": {
     "default_popup": "popup.html",
     "default_title": "Atomic Tasker - Task Management",
     "default_icon": {
-      "16": "icon-16.png",
-      "48": "icon-48.png",
-      "128": "icon-128.png"
+      "16": "assets/icon-16.png",
+      "48": "assets/icon-48.png",
+      "128": "assets/icon-128.png"
     }
   },
   "icons": {
-    "16": "icon-16.png",
-    "48": "icon-48.png",
-    "128": "icon-128.png"
-  }
+    "16": "assets/icon-16.png",
+    "48": "assets/icon-48.png",
+    "128": "assets/icon-128.png"
+  },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA..."
 }
+

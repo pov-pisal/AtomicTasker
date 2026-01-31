@@ -12,8 +12,17 @@
     <div class="container">
         <!-- Header Section -->
         <header class="header">
-            <h1 class="title">⚛ Atomic Tasker</h1>
-            <p class="subtitle">Build habits, one task at a time</p>
+            <div class="header-top">
+                <div>
+                    <h1 class="title">⚛ Atomic Tasker</h1>
+                    <p class="subtitle">Build habits, one task at a time</p>
+                </div>
+            </div>
+            <!-- Sync Status -->
+            <div id="syncStatus" class="sync-status" style="display: none;">
+                <span id="syncStatusText" class="sync-status-text">Synced ✓</span>
+                <button id="syncNowBtn" class="sync-now-btn" title="Sync with Google Tasks">↻ Sync</button>
+            </div>
         </header>
 
         <!-- Category Filter Section -->
@@ -89,6 +98,19 @@
             <div id="emptyState" class="empty-state">
                 <p>No tasks yet. Start your atomic journey! 🚀</p>
             </div>
+        </div>
+
+        <!-- Completed Tasks Section -->
+        <div class="completed-tasks-container">
+            <details class="completed-tasks-details">
+                <summary class="completed-tasks-summary">✅ Completed Tasks</summary>
+                <div id="completedTasksList" class="completed-tasks-list">
+                    <!-- Completed tasks dynamically added here -->
+                </div>
+                <div id="completedEmptyState" class="completed-empty-state">
+                    <p>No completed tasks yet. Complete your first task! 🎉</p>
+                </div>
+            </details>
         </div>
 
         <!-- Motivational Quote Section -->
@@ -187,6 +209,17 @@
                 <button id="advAddBtn" class="btn-primary">Add Task</button>
             </div>
         </div>
+
+        <!-- Footer Section -->
+        <div class="footer-section">
+            <button id="signInBtn" class="google-signin-btn" title="Sign in with Google">
+                <span>🔐 Sign In</span>
+            </button>
+            <div id="userInfo" class="user-info" style="display: none;">
+                <span id="userEmail" class="user-email"></span>
+                <button id="signOutBtn" class="google-signout-btn" title="Sign out">✕</button>
+            </div>
+        </div>
     </div>
 
     <!-- Confirmation Modal -->
@@ -204,6 +237,8 @@
         </div>
     </div>
 
+    <script src="chrome-sync.js"></script>
+    <script src="google-sync.js"></script>
     <script src="popup.js"></script>
 </body>
 </html>

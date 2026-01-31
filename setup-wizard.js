@@ -1,0 +1,187 @@
+/*
+ * ATOMIC TASKER - SETUP WIZARD
+ * Handles the first-time user onboarding experience
+ * Now simplified with Chrome Sync Storage (no Google OAuth needed)
+ */
+
+// ============================================================================
+// WIZARD STATE MANAGEMENT
+// ============================================================================
+
+let wizardState = {
+    currentStep: 'step-welcome',
+    completed: false,
+};
+
+// ============================================================================
+// WIZARD NAVIGATION
+// ============================================================================
+
+/**
+ * Navigate to a specific wizard step
+ * @param {string} stepId - The step ID to navigate to
+ */
+function goToStep(stepId) {
+    // Hide all steps
+    const steps = document.querySelectorAll('.wizard-step');
+    steps.forEach(step => step.classList.remove('active'));
+
+    // Show target step
+    const targetStep = document.getElementById(stepId);
+    if (targetStep) {
+        targetStep.classList.add('active');
+        wizardState.currentStep = stepId;
+        updateProgressIndicator();
+    }
+}
+
+/**
+ * Update progress indicator based on current step
+ */
+function updateProgressIndicator() {
+    const progressDots = document.querySelectorAll('.progress-dot');
+    const stepMap = {
+        'step-welcome': 0,
+        'step-setup': 1,
+    };
+
+    progressDots.forEach((dot, index) => {
+        dot.classList.remove('active');
+        if (index === stepMap[wizardState.currentStep]) {
+            dot.classList.add('active');
+        }
+    });
+}
+
+// ============================================================================
+// WIZARD FLOW
+// ============================================================================
+
+/**
+ * Start setup - transition from Welcome to Setup
+ */
+function startSetup() {
+    console.log('🔵 Get Started clicked!');
+    // Chrome Sync is automatically enabled - no setup needed!
+    // Just show confirmation and complete
+    goToStep('step-setup');
+    console.log('✓ Navigated to step-setup');
+}
+
+/**
+ * Complete the wizard and show main extension
+ */
+function completeWizard() {
+    // Mark wizard as completed
+    chrome.storage.local.set({ wizardCompleted: true });
+
+    // Initialize Chrome Sync
+    if (typeof initializeChromeSync === 'function') {
+        initializeChromeSync();
+    }
+
+    // Close the wizard and show main popup
+    const wizardContainer = document.querySelector('.wizard-container');
+    wizardContainer.style.opacity = '0';
+    wizardContainer.style.transform = 'scale(0.95)';
+
+    setTimeout(() => {
+        window.location.href = 'popup.html';
+    }, 300);
+}
+
+/**
+ * Skip wizard and use extension
+ */
+function skipWizard() {
+    // Mark wizard as completed and skip sync setup
+    chrome.storage.local.set({ 
+        wizardCompleted: true,
+        skipWizard: true 
+    });
+
+    // Initialize Chrome Sync anyway (it's automatic)
+    if (typeof initializeChromeSync === 'function') {
+        initializeChromeSync();
+    }
+
+    // Redirect to main popup
+    setTimeout(() => {
+        window.location.href = 'popup.html';
+    }, 300);
+}
+
+// ============================================================================
+// WIZARD INITIALIZATION
+// ============================================================================
+
+/**
+ * Initialize the wizard when page loads
+ */
+function initializeWizard() {
+    console.log('🚀 Initializing setup wizard (Chrome Sync mode)...');
+
+    // Show first step
+    goToStep('step-welcome');
+    console.log('✓ First step activated');
+    
+    setupEventListeners();
+    console.log('✓ Event listeners set up');
+
+    console.log('✅ Wizard ready - Chrome Sync enabled by default');
+}
+
+/**
+ * Setup all event listeners
+ */
+function setupEventListeners() {
+    console.log('Setting up event listeners...');
+    
+    // Welcome step
+    const btnGetStarted = document.getElementById('btnGetStarted');
+    console.log('btnGetStarted element:', btnGetStarted);
+    if (btnGetStarted) {
+        btnGetStarted.addEventListener('click', startSetup);
+        console.log('✓ Get Started button listener attached');
+    } else {
+        console.error('❌ Get Started button not found!');
+    }
+
+    const btnSkip = document.getElementById('btnSkip');
+    console.log('btnSkip element:', btnSkip);
+    if (btnSkip) {
+        btnSkip.addEventListener('click', skipWizard);
+        console.log('✓ Skip button listener attached');
+    }
+
+    // Setup step
+    const btnComplete = document.getElementById('btnComplete');
+    console.log('btnComplete element:', btnComplete);
+    if (btnComplete) {
+        btnComplete.addEventListener('click', completeWizard);
+        console.log('✓ Complete button listener attached');
+    }
+
+    // Progress dots clickable
+    const progressDots = document.querySelectorAll('.progress-dot');
+    console.log('Progress dots found:', progressDots.length);
+    progressDots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            const steps = ['step-welcome', 'step-setup'];
+            if (index < steps.length) {
+                goToStep(steps[index]);
+            }
+        });
+    });
+}
+
+// ============================================================================
+// STARTUP
+// ============================================================================
+
+// Initialize wizard when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeWizard);
+} else {
+    initializeWizard();
+}
