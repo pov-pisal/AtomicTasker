@@ -145,6 +145,17 @@ body::-webkit-scrollbar-thumb:hover {
     backdrop-filter: blur(10px);
 }
 
+.button-group {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.button-group .add-btn,
+.button-group .add-btn-secondary {
+    flex: 1;
+}
+
 .task-input,
 .category-input,
 .emoji-input {
@@ -252,6 +263,30 @@ body::-webkit-scrollbar-thumb:hover {
 .add-btn:active,
 .add-category-btn:active,
 .new-quote-btn:active {
+    transform: translateY(0);
+}
+
+/* Secondary Add Button */
+.add-btn-secondary {
+    padding: 10px 16px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.add-btn-secondary:hover {
+    border-color: var(--accent-primary);
+    background: rgba(79, 70, 229, 0.1);
+    transform: translateY(-2px);
+}
+
+.add-btn-secondary:active {
     transform: translateY(0);
 }
 
@@ -515,6 +550,63 @@ body::-webkit-scrollbar-thumb:hover {
     font-weight: 600;
 }
 
+/* Task Metadata (Date, Link) */
+.task-metadata {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+
+.task-date {
+    font-size: 11px;
+    padding: 4px 8px;
+    background: rgba(100, 116, 139, 0.2);
+    border-radius: 4px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.task-date.date-overdue {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--danger);
+    font-weight: 600;
+}
+
+.task-link {
+    font-size: 11px;
+    padding: 4px 8px;
+    background: rgba(79, 70, 229, 0.2);
+    border-radius: 4px;
+    color: var(--accent-primary);
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.task-link:hover {
+    background: rgba(79, 70, 229, 0.3);
+    text-decoration: underline;
+}
+
+.task-link[disabled] {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* Task Notes Preview */
+.task-notes-preview {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    padding: 6px 8px;
+    background: rgba(148, 163, 184, 0.1);
+    border-left: 2px solid var(--accent-primary);
+    border-radius: 2px;
+    word-break: break-word;
+}
+
 .task-actions {
     display: flex;
     gap: 6px;
@@ -734,8 +826,65 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 .modal-body input,
-.modal-body select {
+.modal-body select,
+.modal-body textarea {
     width: 100%;
+}
+
+/* Textarea Styling */
+.task-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    resize: vertical;
+    transition: var(--transition);
+    max-height: 150px;
+}
+
+.task-textarea::placeholder {
+    color: var(--text-secondary);
+}
+
+.task-textarea:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    background: rgba(79, 70, 229, 0.05);
+}
+
+/* Date Input Styling */
+input[type="date"] {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+input[type="date"]:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    background: rgba(79, 70, 229, 0.05);
+}
+
+/* Date Label */
+.date-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .modal-footer {

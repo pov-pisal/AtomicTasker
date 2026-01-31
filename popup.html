@@ -38,7 +38,10 @@
                 <option value="">No Category</option>
                 <!-- Category options dynamically added here -->
             </select>
-            <button id="addTaskBtn" class="add-btn">+ Add Task</button>
+            <div class="button-group">
+                <button id="quickAddBtn" class="add-btn">+ Quick Add</button>
+                <button id="advancedAddBtn" class="add-btn-secondary">⚙️ Advanced</button>
+            </div>
         </div>
 
         <!-- Category Management Section -->
@@ -115,10 +118,73 @@
                 <select id="editCategorySelect" class="category-select">
                     <option value="">No Category</option>
                 </select>
+                <textarea 
+                    id="editTaskNotes" 
+                    class="task-textarea" 
+                    placeholder="Add detailed notes..."
+                    maxlength="1000"
+                    rows="4"
+                ></textarea>
+                <input 
+                    type="text" 
+                    id="editTaskLink" 
+                    class="task-input" 
+                    placeholder="Attach a link (optional)..."
+                >
+                <input 
+                    type="date" 
+                    id="editTaskDate" 
+                    class="task-input"
+                >
             </div>
             <div class="modal-footer">
                 <button id="cancelEditBtn" class="btn-secondary">Cancel</button>
                 <button id="saveEditBtn" class="btn-primary">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced Add Task Modal -->
+    <div id="advancedAddModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Task - Advanced</h3>
+                <button class="modal-close" id="advancedModalCloseBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input 
+                    type="text" 
+                    id="advTaskInput" 
+                    class="task-input" 
+                    placeholder="Task name"
+                    maxlength="100"
+                >
+                <select id="advCategorySelect" class="category-select">
+                    <option value="">No Category</option>
+                </select>
+                <textarea 
+                    id="advTaskNotes" 
+                    class="task-textarea" 
+                    placeholder="Add detailed notes..."
+                    maxlength="1000"
+                    rows="4"
+                ></textarea>
+                <input 
+                    type="text" 
+                    id="advTaskLink" 
+                    class="task-input" 
+                    placeholder="Attach a link (optional)..."
+                >
+                <label for="advTaskDate" class="date-label">Due Date:</label>
+                <input 
+                    type="date" 
+                    id="advTaskDate" 
+                    class="task-input"
+                >
+            </div>
+            <div class="modal-footer">
+                <button id="advCancelBtn" class="btn-secondary">Cancel</button>
+                <button id="advAddBtn" class="btn-primary">Add Task</button>
             </div>
         </div>
     </div>

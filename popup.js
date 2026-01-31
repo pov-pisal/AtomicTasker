@@ -40,7 +40,7 @@ const popularEmojis = [
 // DOM ELEMENTS
 // ============================================================================
 
-let taskInput, categoryInput, emojiInput, categorySelect, categoryFilter, addTaskBtn, addCategoryBtn, tasksList, categoriesList, motivationQuote, newQuoteBtn, emptyState, emojiPickerBtn, emojiPicker, editModal, editTaskInput, editCategorySelect, saveEditBtn;
+let taskInput, categoryInput, emojiInput, categorySelect, categoryFilter, quickAddBtn, advancedAddBtn, addCategoryBtn, tasksList, categoriesList, motivationQuote, newQuoteBtn, emptyState, emojiPickerBtn, emojiPicker, editModal, editTaskInput, editCategorySelect, editTaskNotes, editTaskLink, editTaskDate, saveEditBtn, advancedAddModal, advTaskInput, advCategorySelect, advTaskNotes, advTaskLink, advTaskDate, advAddBtn, advCancelBtn;
 
 function initializeDOMElements() {
     taskInput = document.getElementById('taskInput');
@@ -48,7 +48,8 @@ function initializeDOMElements() {
     emojiInput = document.getElementById('emojiInput');
     categorySelect = document.getElementById('categorySelect');
     categoryFilter = document.getElementById('categoryFilter');
-    addTaskBtn = document.getElementById('addTaskBtn');
+    quickAddBtn = document.getElementById('quickAddBtn');
+    advancedAddBtn = document.getElementById('advancedAddBtn');
     addCategoryBtn = document.getElementById('addCategoryBtn');
     tasksList = document.getElementById('tasksList');
     categoriesList = document.getElementById('categoriesList');
@@ -60,7 +61,18 @@ function initializeDOMElements() {
     editModal = document.getElementById('editModal');
     editTaskInput = document.getElementById('editTaskInput');
     editCategorySelect = document.getElementById('editCategorySelect');
+    editTaskNotes = document.getElementById('editTaskNotes');
+    editTaskLink = document.getElementById('editTaskLink');
+    editTaskDate = document.getElementById('editTaskDate');
     saveEditBtn = document.getElementById('saveEditBtn');
+    advancedAddModal = document.getElementById('advancedAddModal');
+    advTaskInput = document.getElementById('advTaskInput');
+    advCategorySelect = document.getElementById('advCategorySelect');
+    advTaskNotes = document.getElementById('advTaskNotes');
+    advTaskLink = document.getElementById('advTaskLink');
+    advTaskDate = document.getElementById('advTaskDate');
+    advAddBtn = document.getElementById('advAddBtn');
+    advCancelBtn = document.getElementById('advCancelBtn');
 }
 
 // ============================================================================
@@ -186,12 +198,9 @@ function saveCategoriesToStorage() {
  * Add a new task to the task list
  * Validates input and creates task object with unique ID
  */
-function addTask() {
-    const taskText = taskInput.value.trim();
-    const categoryId = categorySelect.value;
-
+function addTask(text, categoryId, notes = '', link = '', dueDate = '') {
     // Validate that task name is not empty
-    if (!taskText) {
+    if (!text) {
         alert('Please enter a task name');
         return;
     }
@@ -199,9 +208,12 @@ function addTask() {
     // Create task object with all required properties
     const task = {
         id: Date.now(), // Unique ID based on timestamp
-        text: taskText,
+        text: text,
         completed: false,
         categoryId: categoryId || null,
+        notes: notes,
+        link: link,
+        dueDate: dueDate,
         createdAt: new Date().toISOString(),
     };
 
@@ -209,10 +221,62 @@ function addTask() {
     state.tasks.push(task);
     saveTasksToStorage();
 
-    // Clear inputs and update UI
+    // Update UI
+    renderTasks();
+}
+
+/**
+ * Quick add task from the main input
+ * Simple task without notes, link, or date
+ */
+function quickAddTask() {
+    const taskText = taskInput.value.trim();
+    const categoryId = categorySelect.value;
+
+    addTask(taskText, categoryId);
+
+    // Clear inputs
     taskInput.value = '';
     categorySelect.value = '';
-    renderTasks();
+}
+
+/**
+ * Open advanced add task modal
+ */
+function openAdvancedAddModal() {
+    advTaskInput.value = '';
+    advCategorySelect.value = '';
+    advTaskNotes.value = '';
+    advTaskLink.value = '';
+    advTaskDate.value = '';
+    advancedAddModal.style.display = 'flex';
+    advTaskInput.focus();
+}
+
+/**
+ * Close advanced add task modal
+ */
+function closeAdvancedAddModal() {
+    advancedAddModal.style.display = 'none';
+}
+
+/**
+ * Add task from advanced modal
+ */
+function addAdvancedTask() {
+    const taskText = advTaskInput.value.trim();
+    const categoryId = advCategorySelect.value;
+    const notes = advTaskNotes.value.trim();
+    const link = advTaskLink.value.trim();
+    const dueDate = advTaskDate.value;
+
+    if (!taskText) {
+        alert('Please enter a task name');
+        return;
+    }
+
+    addTask(taskText, categoryId, notes, link, dueDate);
+    closeAdvancedAddModal();
 }
 
 /**
@@ -244,6 +308,9 @@ function openEditModal(taskId) {
     state.editingTaskId = taskId;
     editTaskInput.value = task.text;
     editCategorySelect.value = task.categoryId || '';
+    editTaskNotes.value = task.notes || '';
+    editTaskLink.value = task.link || '';
+    editTaskDate.value = task.dueDate || '';
     editModal.style.display = 'flex';
     editTaskInput.focus();
 }
@@ -256,6 +323,9 @@ function closeEditModal() {
     state.editingTaskId = null;
     editTaskInput.value = '';
     editCategorySelect.value = '';
+    editTaskNotes.value = '';
+    editTaskLink.value = '';
+    editTaskDate.value = '';
 }
 
 /**
@@ -265,6 +335,9 @@ function saveTaskEdits() {
     const taskId = state.editingTaskId;
     const newText = editTaskInput.value.trim();
     const newCategoryId = editCategorySelect.value;
+    const newNotes = editTaskNotes.value.trim();
+    const newLink = editTaskLink.value.trim();
+    const newDueDate = editTaskDate.value;
 
     if (!newText) {
         alert('Please enter a task name');
@@ -275,6 +348,9 @@ function saveTaskEdits() {
     if (task) {
         task.text = newText;
         task.categoryId = newCategoryId || null;
+        task.notes = newNotes;
+        task.link = newLink;
+        task.dueDate = newDueDate;
         saveTasksToStorage();
         closeEditModal();
         renderTasks();
@@ -422,6 +498,35 @@ function renderTasks() {
     filteredTasks.forEach((task) => {
         const taskElement = document.createElement('div');
         taskElement.className = `task-item ${task.completed ? 'completed' : ''}`;
+        
+        // Format due date if exists
+        let dueDateDisplay = '';
+        if (task.dueDate) {
+            const date = new Date(task.dueDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const taskDate = new Date(task.dueDate);
+            taskDate.setHours(0, 0, 0, 0);
+            
+            const isOverdue = taskDate < today && !task.completed;
+            const dateClass = isOverdue ? 'date-overdue' : '';
+            dueDateDisplay = `<span class="task-date ${dateClass}">📅 ${date.toLocaleDateString()}</span>`;
+        }
+        
+        // Link preview if exists
+        let linkDisplay = '';
+        if (task.link) {
+            const isValidUrl = task.link.startsWith('http://') || task.link.startsWith('https://');
+            linkDisplay = `<a href="${task.link}" class="task-link" target="_blank" rel="noopener noreferrer" ${isValidUrl ? '' : 'disabled'}>🔗 Link</a>`;
+        }
+        
+        // Notes preview if exists
+        let notesDisplay = '';
+        if (task.notes) {
+            const preview = task.notes.substring(0, 50) + (task.notes.length > 50 ? '...' : '');
+            notesDisplay = `<div class="task-notes-preview">📝 ${escapeHtml(preview)}</div>`;
+        }
+        
         taskElement.innerHTML = `
             <!-- Task Checkbox -->
             <input 
@@ -435,6 +540,11 @@ function renderTasks() {
             <div class="task-content">
                 <span class="task-text">${escapeHtml(task.text)}</span>
                 ${task.categoryId ? `<span class="task-category">${getCategoryLabel(task.categoryId)}</span>` : ''}
+                <div class="task-metadata">
+                    ${dueDateDisplay}
+                    ${linkDisplay}
+                </div>
+                ${notesDisplay}
             </div>
 
             <!-- Task Actions -->
@@ -550,13 +660,16 @@ function displayRandomQuote() {
  * Set up all event listeners for user interactions
  */
 function setupEventListeners() {
-    // Add task button
-    addTaskBtn.addEventListener('click', addTask);
+    // Quick add task button
+    quickAddBtn.addEventListener('click', quickAddTask);
 
-    // Add task on Enter key
+    // Advanced add task button
+    advancedAddBtn.addEventListener('click', openAdvancedAddModal);
+
+    // Add task on Enter key (quick add)
     taskInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-            addTask();
+            quickAddTask();
         }
     });
 
@@ -604,6 +717,28 @@ function setupEventListeners() {
         }
     });
 
+    // Advanced add modal events
+    advAddBtn.addEventListener('click', addAdvancedTask);
+    advCancelBtn.addEventListener('click', closeAdvancedAddModal);
+    const advancedModalCloseBtn = document.getElementById('advancedModalCloseBtn');
+    
+    if (advancedModalCloseBtn) {
+        advancedModalCloseBtn.addEventListener('click', closeAdvancedAddModal);
+    }
+
+    advTaskInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            addAdvancedTask();
+        }
+    });
+
+    // Close advanced modal on background click
+    advancedAddModal.addEventListener('click', (e) => {
+        if (e.target === advancedAddModal) {
+            closeAdvancedAddModal();
+        }
+    });
+
     // Event delegation for task actions
     tasksList.addEventListener('click', (e) => {
         // Edit task
@@ -615,6 +750,14 @@ function setupEventListeners() {
         if (e.target.classList.contains('delete-btn')) {
             const taskId = parseInt(e.target.dataset.deleteId);
             deleteTask(taskId);
+        }
+        // Handle link clicks
+        if (e.target.classList.contains('task-link')) {
+            const href = e.target.getAttribute('href');
+            if (href.startsWith('http://') || href.startsWith('https://')) {
+                window.open(href, '_blank');
+            }
+            e.preventDefault();
         }
     });
 
