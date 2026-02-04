@@ -209,15 +209,43 @@
                 <button id="advAddBtn" class="btn-primary">Add Task</button>
             </div>
         </div>
+    </div>
 
-        <!-- Footer Section -->
-        <div class="footer-section">
-            <button id="signInBtn" class="google-signin-btn" title="Sign in with Google">
-                <span>🔐 Sign In</span>
-            </button>
-            <div id="userInfo" class="user-info" style="display: none;">
-                <span id="userEmail" class="user-email"></span>
-                <button id="signOutBtn" class="google-signout-btn" title="Sign out">✕</button>
+    <!-- Edit Category Modal -->
+    <div id="editCategoryModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Category</h3>
+                <button class="modal-close" id="editCategoryModalCloseBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="emoji-picker-container">
+                    <button id="editCategoryEmojiPickerBtn" class="emoji-picker-btn">😀</button>
+                    <div id="editCategoryEmojiPicker" class="emoji-picker-menu" style="display: none;">
+                        <div class="emoji-picker-grid">
+                            💻 📚 🧘 💪 🎯 🏆 ⭐ 🔥 🎨 🎵 🏃 🍎 😴 🧠 📞
+                        </div>
+                    </div>
+                </div>
+                <input 
+                    type="text" 
+                    id="editCategoryEmojiInput" 
+                    class="emoji-input" 
+                    placeholder="Selected emoji"
+                    maxlength="2"
+                    readonly
+                >
+                <input 
+                    type="text" 
+                    id="editCategoryNameInput" 
+                    class="category-input" 
+                    placeholder="Category name"
+                    maxlength="50"
+                >
+            </div>
+            <div class="modal-footer">
+                <button id="editCategoryCancelBtn" class="btn-secondary">Cancel</button>
+                <button id="saveEditCategoryBtn" class="btn-primary">Save Changes</button>
             </div>
         </div>
     </div>

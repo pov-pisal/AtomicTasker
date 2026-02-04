@@ -33,14 +33,16 @@ const motivationalQuotes = [
 
 // Popular emoji list for quick selection
 const popularEmojis = [
-    '💻', '📚', '🧘', '💪', '🎯', '🏆', '⭐', '🔥', '🎨', '🎵', '🏃', '🍎', '😴', '🧠', '📞'
+    '💻', '📚', '🧘', '💪', '🎯', '🏆', '⭐', '🔥', '🎨', '🎵', '🏃', '🍎', '😴', '🧠', '📞',
+    '✈️', '🎬', '🎮', '📱', '🎓', '📊', '💼', '🌟', '🚀', '🎁', '🏥', '⚽', '🎪', '🍕', '🏠',
+    '📝', '🔐', '⏰', '🌍', '💡', '🎤', '📸', '🎸', '🏋️', '🌈', '🍎', '🔔', '📌', '🎯', '✅'
 ];
 
 // ============================================================================
 // DOM ELEMENTS
 // ============================================================================
 
-let taskInput, categoryInput, emojiInput, categorySelect, categoryFilter, quickAddBtn, advancedAddBtn, addCategoryBtn, tasksList, categoriesList, motivationQuote, newQuoteBtn, emptyState, emojiPickerBtn, emojiPicker, editModal, editTaskInput, editCategorySelect, editTaskNotes, editTaskLink, editTaskDate, saveEditBtn, advancedAddModal, advTaskInput, advCategorySelect, advTaskNotes, advTaskLink, advTaskDate, advAddBtn, advCancelBtn, completedTasksList, completedEmptyState, signInBtn, signOutBtn, userInfo, userEmail, syncStatus, syncStatusText, syncNowBtn;
+let taskInput, categoryInput, emojiInput, categorySelect, categoryFilter, quickAddBtn, advancedAddBtn, addCategoryBtn, tasksList, categoriesList, motivationQuote, newQuoteBtn, emptyState, emojiPickerBtn, emojiPicker, editModal, editTaskInput, editCategorySelect, editTaskNotes, editTaskLink, editTaskDate, saveEditBtn, advancedAddModal, advTaskInput, advCategorySelect, advTaskNotes, advTaskLink, advTaskDate, advAddBtn, advCancelBtn, completedTasksList, completedEmptyState, signInBtn, signOutBtn, userInfo, userEmail, syncStatus, syncStatusText, syncNowBtn, editCategoryModal, editCategoryEmojiPickerBtn, editCategoryEmojiPicker, editCategoryEmojiInput, editCategoryNameInput, saveEditCategoryBtn, editCategoryModalCloseBtn, editCategoryCancelBtn;
 
 function initializeDOMElements() {
     taskInput = document.getElementById('taskInput');
@@ -82,6 +84,14 @@ function initializeDOMElements() {
     syncStatus = document.getElementById('syncStatus');
     syncStatusText = document.getElementById('syncStatusText');
     syncNowBtn = document.getElementById('syncNowBtn');
+    editCategoryModal = document.getElementById('editCategoryModal');
+    editCategoryEmojiPickerBtn = document.getElementById('editCategoryEmojiPickerBtn');
+    editCategoryEmojiPicker = document.getElementById('editCategoryEmojiPicker');
+    editCategoryEmojiInput = document.getElementById('editCategoryEmojiInput');
+    editCategoryNameInput = document.getElementById('editCategoryNameInput');
+    saveEditCategoryBtn = document.getElementById('saveEditCategoryBtn');
+    editCategoryModalCloseBtn = document.getElementById('editCategoryModalCloseBtn');
+    editCategoryCancelBtn = document.getElementById('editCategoryCancelBtn');
 }
 
 // ============================================================================
@@ -123,6 +133,51 @@ function showConfirmation(title, message, onConfirm) {
 
     newCancelBtn.addEventListener('click', () => {
         confirmModal.style.display = 'none';
+    });
+}
+
+/**
+ * Show a custom alert dialog
+ * @param {string} message - The alert message
+ */
+function showAlert(message) {
+    const confirmModal = document.getElementById('confirmModal');
+    const confirmTitle = document.getElementById('confirmTitle');
+    const confirmMessage = document.getElementById('confirmMessage');
+    const confirmOkBtn = document.getElementById('confirmOkBtn');
+    const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+    const confirmFooter = document.querySelector('.confirm-footer');
+
+    confirmTitle.textContent = 'Alert';
+    confirmMessage.textContent = message;
+    confirmOkBtn.textContent = 'OK';
+    confirmOkBtn.className = 'btn-primary'; // Change button style from danger to primary
+
+    confirmModal.style.display = 'flex';
+
+    // Center the footer for alerts
+    confirmFooter.style.justifyContent = 'center';
+
+    // Clear previous listeners by cloning buttons
+    const newOkBtn = confirmOkBtn.cloneNode(true);
+    confirmOkBtn.parentNode.replaceChild(newOkBtn, confirmOkBtn);
+
+    // Hide cancel button for alerts
+    confirmCancelBtn.style.display = 'none';
+
+    // Add new listener
+    newOkBtn.addEventListener('click', () => {
+        confirmModal.style.display = 'none';
+        confirmCancelBtn.style.display = 'block'; // Show it again for next use
+        confirmFooter.style.justifyContent = ''; // Reset for next use
+    });
+
+    // Show cancel button again when modal is closed
+    confirmModal.addEventListener('click', (e) => {
+        if (e.target === confirmModal) {
+            confirmModal.style.display = 'none';
+            confirmCancelBtn.style.display = 'block';
+        }
     });
 }
 
@@ -299,7 +354,7 @@ function saveCategoriesToStorage() {
 function addTask(text, categoryId, notes = '', link = '', dueDate = '') {
     // Validate that task name is not empty
     if (!text) {
-        alert('Please enter a task name');
+        showAlert('Please enter a task name');
         return;
     }
 
@@ -320,17 +375,6 @@ function addTask(text, categoryId, notes = '', link = '', dueDate = '') {
     state.tasks.push(task);
     saveTasksToStorage();
 
-    // Sync with Google if authenticated
-    if (googleSyncState.isAuthenticated && navigator.onLine) {
-        createGoogleTask(task).catch(error => {
-            console.error('Failed to sync task to Google:', error);
-            queueOfflineChange({ type: 'create', task });
-        });
-    } else if (!navigator.onLine) {
-        // Queue for later if offline
-        queueOfflineChange({ type: 'create', task });
-    }
-
     // Update UI
     renderTasks();
 }
@@ -340,25 +384,41 @@ function addTask(text, categoryId, notes = '', link = '', dueDate = '') {
  * Simple task without notes, link, or date
  */
 function quickAddTask() {
+    if (!taskInput || !categorySelect) {
+        console.error('Task input or category select not initialized');
+        return;
+    }
+    
     const taskText = taskInput.value.trim();
     const categoryId = categorySelect.value;
 
-    addTask(taskText, categoryId);
-
-    // Clear inputs
-    taskInput.value = '';
-    categorySelect.value = '';
+    if (taskText) {
+        addTask(taskText, categoryId);
+        
+        // Clear inputs
+        taskInput.value = '';
+        categorySelect.value = '';
+    }
 }
 
 /**
  * Open advanced add task modal
  */
 function openAdvancedAddModal() {
-    advTaskInput.value = '';
-    advCategorySelect.value = '';
+    if (!advancedAddModal || !advTaskInput) {
+        console.error('Advanced add modal elements not initialized');
+        return;
+    }
+    
+    // Fetch data from quick add section if available
+    advTaskInput.value = taskInput.value.trim();
+    advCategorySelect.value = categorySelect.value;
+    
+    // Clear other fields
     advTaskNotes.value = '';
     advTaskLink.value = '';
     advTaskDate.value = '';
+    
     advancedAddModal.style.display = 'flex';
     advTaskInput.focus();
 }
@@ -381,11 +441,21 @@ function addAdvancedTask() {
     const dueDate = advTaskDate.value;
 
     if (!taskText) {
-        alert('Please enter a task name');
+        showAlert('Please enter a task name');
         return;
     }
 
     addTask(taskText, categoryId, notes, link, dueDate);
+    
+    // Clear all inputs
+    taskInput.value = '';
+    categorySelect.value = '';
+    advTaskInput.value = '';
+    advCategorySelect.value = '';
+    advTaskNotes.value = '';
+    advTaskLink.value = '';
+    advTaskDate.value = '';
+    
     closeAdvancedAddModal();
 }
 
@@ -451,7 +521,7 @@ function saveTaskEdits() {
     const newDueDate = editTaskDate.value;
 
     if (!newText) {
-        alert('Please enter a task name');
+        showAlert('Please enter a task name');
         return;
     }
 
@@ -524,17 +594,17 @@ function addCategory() {
 
     // Validate inputs
     if (!name) {
-        alert('Please enter a category name');
+        showAlert('Please enter a category name');
         return;
     }
     if (emoji && emoji.length > 2) {
-        alert('Emoji must be a single character');
+        showAlert('Emoji must be a single character');
         return;
     }
 
     // Check for duplicate category names
     if (state.categories.some((c) => c.name.toLowerCase() === name.toLowerCase())) {
-        alert('This category already exists');
+        showAlert('This category already exists');
         return;
     }
 
@@ -589,6 +659,71 @@ function deleteCategory(categoryId) {
             renderTasks();
         }
     );
+}
+
+/**
+ * Open edit category modal and populate with current category data
+ * @param {string} categoryId - The ID of the category to edit
+ */
+function openEditCategoryModal(categoryId) {
+    const category = state.categories.find((c) => c.id === categoryId);
+    if (!category) return;
+
+    // Store the category ID for use in save function
+    editCategoryModal.dataset.categoryId = categoryId;
+
+    // Populate the modal with current category data
+    editCategoryNameInput.value = category.name;
+    editCategoryEmojiInput.value = category.emoji || '';
+    editCategoryEmojiPickerBtn.textContent = category.emoji || '😀';
+
+    // Show the modal
+    editCategoryModal.style.display = 'block';
+    editCategoryNameInput.focus();
+}
+
+/**
+ * Save edited category changes
+ */
+function saveEditCategory() {
+    const categoryId = editCategoryModal.dataset.categoryId;
+    const category = state.categories.find((c) => c.id === categoryId);
+    
+    if (!category) return;
+
+    const emoji = editCategoryEmojiInput.value.trim();
+    const name = editCategoryNameInput.value.trim();
+
+    // Validate inputs
+    if (!name) {
+        showAlert('Please enter a category name');
+        return;
+    }
+    if (emoji && emoji.length > 2) {
+        showAlert('Emoji must be a single character');
+        return;
+    }
+
+    // Check for duplicate category names (excluding current category)
+    if (state.categories.some((c) => c.id !== categoryId && c.name.toLowerCase() === name.toLowerCase())) {
+        showAlert('This category name already exists');
+        return;
+    }
+
+    // Update category
+    category.name = name;
+    category.emoji = emoji || '';
+
+    // Save to storage and update UI
+    saveCategoriesToStorage();
+    renderCategories();
+    renderCategoryFilter();
+    renderCategorySelect();
+    renderTasks();
+
+    // Close modal
+    editCategoryModal.style.display = 'none';
+    showAlert('Category updated successfully! ✓');
 }
 
 // ============================================================================
@@ -675,31 +810,20 @@ function renderTasks() {
 
             <!-- Task Actions -->
             <div class="task-actions">
-                ${task.completed ? `
-                    <button 
-                        class="favorite-btn" 
-                        data-favorite-id="${task.id}"
-                        title="${task.isFavorite ? 'Remove from favorites' : 'Add to favorites'}"
-                    >
-                        ${task.isFavorite ? '⭐' : '☆'}
-                    </button>
-                ` : ''}
-                ${task.completed ? `
-                    <button 
-                        class="edit-btn" 
-                        data-edit-id="${task.id}"
-                        title="Edit task"
-                    >
-                        ✏️
-                    </button>
-                    <button 
-                        class="delete-btn" 
-                        data-delete-id="${task.id}"
-                        title="Delete task"
-                    >
-                        🗑️
-                    </button>
-                ` : ''}
+                <button 
+                    class="edit-btn" 
+                    data-edit-id="${task.id}"
+                    title="Edit task"
+                >
+                    ✏️
+                </button>
+                <button 
+                    class="delete-btn" 
+                    data-delete-id="${task.id}"
+                    title="Delete task"
+                >
+                    🗑️
+                </button>
             </div>
         `;
         tasksList.appendChild(taskElement);
@@ -708,7 +832,7 @@ function renderTasks() {
 
 /**
  * Render all categories in the category management section
- * Displays category tags with delete buttons
+ * Displays category tags with edit and delete buttons
  */
 function renderCategories() {
     categoriesList.innerHTML = '';
@@ -724,11 +848,18 @@ function renderCategories() {
         categoryTag.innerHTML = `
             <span>${category.emoji} ${escapeHtml(category.name)}</span>
             <button 
+                class="edit-category-btn" 
+                data-category-id="${category.id}"
+                title="Edit category"
+            >
+                ✏️
+            </button>
+            <button 
                 class="delete-category-btn" 
                 data-category-id="${category.id}"
                 title="Delete category"
             >
-                ✕
+                🗑️
             </button>
         `;
         categoriesList.appendChild(categoryTag);
@@ -759,6 +890,7 @@ function renderCategorySelect() {
     // Keep "No Category" option
     categorySelect.innerHTML = '<option value="">No Category</option>';
     editCategorySelect.innerHTML = '<option value="">No Category</option>';
+    advCategorySelect.innerHTML = '<option value="">No Category</option>';
 
     state.categories.forEach((category) => {
         const displayText = category.emoji ? `${category.emoji} ${category.name}` : category.name;
@@ -773,6 +905,12 @@ function renderCategorySelect() {
         editOption.value = category.id;
         editOption.textContent = displayText;
         editCategorySelect.appendChild(editOption);
+
+        // Also add to advanced add modal
+        const advOption = document.createElement('option');
+        advOption.value = category.id;
+        advOption.textContent = displayText;
+        advCategorySelect.appendChild(advOption);
     });
 }
 
@@ -882,25 +1020,31 @@ function displayRandomQuote() {
  */
 function setupEventListeners() {
     // Google Sign In
-    signInBtn.addEventListener('click', async () => {
-        const success = await signInWithGoogle();
-        if (success) {
-            updateAuthUI();
-            syncStatus.style.display = 'flex';
-        }
-    });
+    if (signInBtn) {
+        signInBtn.addEventListener('click', async () => {
+            const success = await signInWithGoogle();
+            if (success) {
+                updateAuthUI();
+                syncStatus.style.display = 'flex';
+            }
+        });
+    }
 
     // Google Sign Out
-    signOutBtn.addEventListener('click', async () => {
-        await signOutFromGoogle();
-        updateAuthUI();
-        syncStatus.style.display = 'none';
-    });
+    if (signOutBtn) {
+        signOutBtn.addEventListener('click', async () => {
+            await signOutFromGoogle();
+            updateAuthUI();
+            syncStatus.style.display = 'none';
+        });
+    }
 
     // Manual Sync
-    syncNowBtn.addEventListener('click', async () => {
-        await syncTasksToGoogle(state.tasks);
-    });
+    if (syncNowBtn) {
+        syncNowBtn.addEventListener('click', async () => {
+            await syncTasksToGoogle(state.tasks);
+        });
+    }
 
     // Listen for sync status changes
     window.addEventListener('syncStatusChanged', (e) => {
@@ -1049,6 +1193,29 @@ function setupEventListeners() {
             const categoryId = e.target.dataset.categoryId;
             deleteCategory(categoryId);
         }
+        if (e.target.classList.contains('edit-category-btn')) {
+            const categoryId = e.target.dataset.categoryId;
+            openEditCategoryModal(categoryId);
+        }
+    });
+
+    // Edit category modal events
+    saveEditCategoryBtn.addEventListener('click', saveEditCategory);
+    editCategoryModalCloseBtn.addEventListener('click', closeEditCategoryModal);
+    editCategoryCancelBtn.addEventListener('click', closeEditCategoryModal);
+
+    // Edit category name on Enter key
+    editCategoryNameInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            saveEditCategory();
+        }
+    });
+
+    // Close edit category modal on background click
+    editCategoryModal.addEventListener('click', (e) => {
+        if (e.target === editCategoryModal) {
+            closeEditCategoryModal();
+        }
     });
 
     // Focus on task input when popup opens
@@ -1086,6 +1253,44 @@ function setupEmojiPicker() {
             emojiPicker.style.display = 'none';
         }
     });
+
+    // Setup edit category emoji picker
+    editCategoryEmojiPickerBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        editCategoryEmojiPicker.style.display = editCategoryEmojiPicker.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Populate edit category emoji picker with popular emojis
+    const editCategoryEmojiGrid = editCategoryEmojiPicker.querySelector('.emoji-picker-grid');
+    editCategoryEmojiGrid.innerHTML = '';
+    popularEmojis.forEach((emoji) => {
+        const button = document.createElement('button');
+        button.className = 'emoji-option';
+        button.textContent = emoji;
+        button.addEventListener('click', () => {
+            editCategoryEmojiInput.value = emoji;
+            editCategoryEmojiPickerBtn.textContent = emoji;
+            editCategoryEmojiPicker.style.display = 'none';
+        });
+        editCategoryEmojiGrid.appendChild(button);
+    });
+
+    // Close edit category emoji picker when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.emoji-picker-container')) {
+            editCategoryEmojiPicker.style.display = 'none';
+        }
+    });
+}
+
+/**
+ * Close edit category modal
+ */
+function closeEditCategoryModal() {
+    editCategoryModal.style.display = 'none';
+    editCategoryNameInput.value = '';
+    editCategoryEmojiInput.value = '';
+    editCategoryEmojiPickerBtn.textContent = '😀';
 }
 
 // ============================================================================

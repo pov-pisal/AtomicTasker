@@ -79,8 +79,8 @@ body::-webkit-scrollbar-thumb:hover {
 
 .header-top {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    justify-content: center;
+    align-items: center;
     gap: 10px;
 }
 
@@ -483,6 +483,27 @@ body::-webkit-scrollbar-thumb:hover {
     z-index: 1000;
     box-shadow: var(--shadow-md);
     min-width: 280px;
+    max-height: 200px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-primary) var(--bg-secondary);
+}
+
+.emoji-picker-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.emoji-picker-menu::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+.emoji-picker-menu::-webkit-scrollbar-thumb {
+    background: var(--accent-primary);
+    border-radius: 3px;
+}
+
+.emoji-picker-menu::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-secondary);
 }
 
 .emoji-picker-grid {
@@ -546,6 +567,21 @@ body::-webkit-scrollbar-thumb:hover {
 .category-tag:hover {
     background: rgba(79, 70, 229, 0.25);
     transform: translateY(-1px);
+}
+
+.edit-category-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0;
+    font-size: 14px;
+    transition: var(--transition);
+}
+
+.edit-category-btn:hover {
+    color: var(--accent-primary);
+    transform: scale(1.2);
 }
 
 .delete-category-btn {
@@ -1116,7 +1152,7 @@ input[type="date"]:focus {
     gap: 10px;
     padding: 16px 20px;
     border-top: 1px solid var(--border-color);
-    justify-content: flex-end;
+    justify-content: center;
     flex-shrink: 0;
 }
 
