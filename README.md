@@ -5,7 +5,7 @@
 A lightweight, privacy-first Chrome extension for task management inspired by Atomic Habits methodology. Create, organize, and track your daily tasks with automatic cross-device synchronization.
 
 ## ✨ Features
-
+cbsjkabckabjcs
 - 📝 **Quick Task Creation** - Add tasks instantly with a single click
 - 🏷️ **Smart Categories** - Organize tasks by custom categories with emoji icons
 - ☑️ **Task Tracking** - Mark tasks complete, add notes, links, and due dates
