@@ -9,15 +9,16 @@
     "default_popup": "popup.html",
     "default_title": "Atomic Tasker - Task Management",
     "default_icon": {
-      "16": "assets/icon-16.png",
-      "48": "assets/icon-48.png",
-      "128": "assets/icon-128.png"
+      "16": "assets/specificity-svgrepo-com-64.png",
+      "48": "assets/specificity-svgrepo-com-64.png",
+      "128": "assets/specificity-svgrepo-com-128.png"
     }
   },
   "icons": {
-    "16": "assets/icon-16.png",
-    "48": "assets/icon-48.png",
-    "128": "assets/icon-128.png"
+    "16": "assets/specificity-svgrepo-com-64.png",
+    "48": "assets/specificity-svgrepo-com-64.png",
+    "128": "assets/specificity-svgrepo-com-128.png",
+    "256": "assets/specificity-svgrepo-com-256.png"
   }
 }
 

@@ -61,11 +61,10 @@ function updateProgressIndicator() {
  * Start setup - transition from Welcome to Setup
  */
 function startSetup() {
-    console.log('🔵 Get Started clicked!');
+    logInfo('Starting setup wizard...');
     // Chrome Sync is automatically enabled - no setup needed!
     // Just show confirmation and complete
     goToStep('step-setup');
-    console.log('✓ Navigated to step-setup');
 }
 
 /**
@@ -119,52 +118,41 @@ function skipWizard() {
  * Initialize the wizard when page loads
  */
 function initializeWizard() {
-    console.log('🚀 Initializing setup wizard (Chrome Sync mode)...');
+    logInfo('Initializing setup wizard...');
 
     // Show first step
     goToStep('step-welcome');
-    console.log('✓ First step activated');
     
     setupEventListeners();
-    console.log('✓ Event listeners set up');
 
-    console.log('✅ Wizard ready - Chrome Sync enabled by default');
+    logSuccess('Wizard ready - Chrome Sync enabled by default');
 }
 
 /**
  * Setup all event listeners
  */
 function setupEventListeners() {
-    console.log('Setting up event listeners...');
-    
     // Welcome step
     const btnGetStarted = document.getElementById('btnGetStarted');
-    console.log('btnGetStarted element:', btnGetStarted);
     if (btnGetStarted) {
         btnGetStarted.addEventListener('click', startSetup);
-        console.log('✓ Get Started button listener attached');
     } else {
-        console.error('❌ Get Started button not found!');
+        logError('Get Started button not found!');
     }
 
     const btnSkip = document.getElementById('btnSkip');
-    console.log('btnSkip element:', btnSkip);
     if (btnSkip) {
         btnSkip.addEventListener('click', skipWizard);
-        console.log('✓ Skip button listener attached');
     }
 
     // Setup step
     const btnComplete = document.getElementById('btnComplete');
-    console.log('btnComplete element:', btnComplete);
     if (btnComplete) {
         btnComplete.addEventListener('click', completeWizard);
-        console.log('✓ Complete button listener attached');
     }
 
     // Progress dots clickable
     const progressDots = document.querySelectorAll('.progress-dot');
-    console.log('Progress dots found:', progressDots.length);
     progressDots.forEach((dot, index) => {
         dot.addEventListener('click', () => {
             const steps = ['step-welcome', 'step-setup'];

@@ -24,12 +24,12 @@ let chromeSyncState = {
  * Sets up listeners and performs initial sync
  */
 function initializeChromeSync() {
-    console.log('Initializing Chrome Sync Storage...');
+    logInfo('Initializing Chrome Sync Storage...');
 
     // Listen for storage changes from other devices
     chrome.storage.onChanged.addListener((changes, areaName) => {
         if (areaName === 'sync') {
-            console.log('Storage changed on another device:', changes);
+            logInfo('Storage changed on another device');
             handleRemoteSync(changes);
         }
     });
@@ -40,7 +40,7 @@ function initializeChromeSync() {
     // Periodically check for sync updates (every 30 seconds)
     setInterval(syncTasksWithChrome, 30000);
 
-    console.log('Chrome Sync Storage initialized');
+    logSuccess('Chrome Sync Storage initialized');
 }
 
 // ============================================================================
@@ -49,55 +49,56 @@ function initializeChromeSync() {
 
 /**
  * Sync tasks with Chrome cloud storage
+ * Uses Promise-based storage API for cleaner code
  */
 function syncTasksWithChrome() {
     if (chromeSyncState.isSyncing) {
-        console.log('Sync already in progress...');
+        logInfo('Sync already in progress...');
         return;
     }
 
     chromeSyncState.isSyncing = true;
 
-    // Get local tasks
-    chrome.storage.local.get(['tasks', 'categories'], (localData) => {
-        // Get cloud tasks
-        chrome.storage.sync.get(['tasks', 'categories', 'lastModified'], (cloudData) => {
-            try {
-                const localTasks = localData.tasks || [];
-                const cloudTasks = cloudData.tasks || [];
-                const localCategories = localData.categories || [];
-                const cloudCategories = cloudData.categories || [];
+    Promise.all([
+        storageGet(['tasks', 'categories']),
+        storageSyncGet(['tasks', 'categories', 'lastModified'])
+    ])
+    .then(([localData, cloudData]) => {
+        const localTasks = localData.tasks || [];
+        const cloudTasks = cloudData.tasks || [];
+        const localCategories = localData.categories || [];
+        const cloudCategories = cloudData.categories || [];
 
-                // Merge tasks intelligently
-                const mergedTasks = mergeTasks(localTasks, cloudTasks, cloudData.lastModified);
-                const mergedCategories = mergeCategories(localCategories, cloudCategories);
+        // Merge tasks intelligently
+        const mergedTasks = mergeTasks(localTasks, cloudTasks, cloudData.lastModified);
+        const mergedCategories = mergeCategories(localCategories, cloudCategories);
 
-                // Update cloud storage
-                chrome.storage.sync.set({
-                    tasks: mergedTasks,
-                    categories: mergedCategories,
-                    lastModified: new Date().toISOString(),
-                });
+        // Update cloud storage
+        return Promise.all([
+            storageSyncSet({
+                tasks: mergedTasks,
+                categories: mergedCategories,
+                lastModified: getCurrentTimestamp(),
+            }),
+            storageSet({
+                tasks: mergedTasks,
+                categories: mergedCategories,
+            })
+        ]).then(() => {
+            chromeSyncState.lastSyncTime = new Date();
+            logSuccess(`Sync complete. Tasks synced: ${mergedTasks.length}`);
 
-                // Update local storage if cloud had newer data
-                chrome.storage.local.set({
-                    tasks: mergedTasks,
-                    categories: mergedCategories,
-                });
-
-                chromeSyncState.lastSyncTime = new Date();
-                console.log('✅ Sync complete. Tasks synced:', mergedTasks.length);
-
-                // Notify popup to refresh UI
-                if (typeof updateTasksUI === 'function') {
-                    updateTasksUI();
-                }
-            } catch (error) {
-                console.error('Sync error:', error);
-            } finally {
-                chromeSyncState.isSyncing = false;
+            // Notify popup to refresh UI
+            if (typeof updateTasksUI === 'function') {
+                updateTasksUI();
             }
         });
+    })
+    .catch((error) => {
+        logError('Sync error', error);
+    })
+    .finally(() => {
+        chromeSyncState.isSyncing = false;
     });
 }
 
@@ -107,52 +108,14 @@ function syncTasksWithChrome() {
 
 /**
  * Intelligently merge local and cloud tasks
+ * Uses shared utility function from utils.js
  * @param {Array} localTasks - Tasks from local storage
  * @param {Array} cloudTasks - Tasks from cloud storage
- * @param {string} lastSyncTime - Last sync timestamp
+ * @param {string} lastSyncTime - Last sync timestamp (unused, for compatibility)
  * @returns {Array} Merged tasks
  */
 function mergeTasks(localTasks, cloudTasks, lastSyncTime) {
-    if (!cloudTasks || cloudTasks.length === 0) {
-        return localTasks;
-    }
-
-    // Create maps for quick lookup
-    const cloudMap = new Map(cloudTasks.map(t => [t.id, t]));
-    const localMap = new Map(localTasks.map(t => [t.id, t]));
-
-    // Merge logic: take newer version based on modifiedAt timestamp
-    const merged = new Map(cloudMap);
-
-    localTasks.forEach(localTask => {
-        const cloudTask = cloudMap.get(localTask.id);
-
-        if (!cloudTask) {
-            // Task only in local - add it
-            merged.set(localTask.id, localTask);
-        } else {
-            // Task in both - compare timestamps
-            const localTime = new Date(localTask.modifiedAt || 0);
-            const cloudTime = new Date(cloudTask.modifiedAt || 0);
-
-            if (localTime > cloudTime) {
-                // Local is newer
-                merged.set(localTask.id, localTask);
-            } else {
-                // Cloud is newer (or same)
-                merged.set(localTask.id, cloudTask);
-            }
-        }
-    });
-
-    // Remove tasks that were deleted in cloud
-    cloudTasks.forEach(cloudTask => {
-        if (!localMap.has(cloudTask.id) && cloudTask.deleted) {
-            merged.delete(cloudTask.id);
-        }
-    });
-
-    return Array.from(merged.values());
+    return mergeByTimestamp(localTasks, cloudTasks);
 }
 
 /**
@@ -162,20 +125,7 @@ function mergeTasks(localTasks, cloudTasks, lastSyncTime) {
  * @returns {Array} Merged categories
  */
 function mergeCategories(localCategories, cloudCategories) {
-    if (!cloudCategories || cloudCategories.length === 0) {
-        return localCategories;
-    }
-
-    const merged = new Map(cloudCategories.map(c => [c.id, c]));
-    
-    localCategories.forEach(localCat => {
-        const cloudCat = Array.from(merged.values()).find(c => c.id === localCat.id);
-        if (!cloudCat) {
-            merged.set(localCat.id, localCat);
-        }
-    });
-
-    return Array.from(merged.values());
+    return mergeByTimestamp(localCategories, cloudCategories);
 }
 
 // ============================================================================
@@ -187,34 +137,38 @@ function mergeCategories(localCategories, cloudCategories) {
  * @param {Object} changes - Storage changes from chrome.storage.onChanged
  */
 function handleRemoteSync(changes) {
-    console.log('Handling remote sync changes:', changes);
+    logInfo('Handling remote sync changes...');
 
-    // Get updated data
-    chrome.storage.sync.get(['tasks', 'categories'], (cloudData) => {
-        chrome.storage.local.get(['tasks', 'categories'], (localData) => {
-            // Merge and update local storage
-            const mergedTasks = mergeTasks(
-                localData.tasks || [],
-                cloudData.tasks || [],
-                cloudData.lastModified
-            );
-            const mergedCategories = mergeCategories(
-                localData.categories || [],
-                cloudData.categories || []
-            );
+    Promise.all([
+        storageSyncGet(['tasks', 'categories']),
+        storageGet(['tasks', 'categories'])
+    ])
+    .then(([cloudData, localData]) => {
+        // Merge and update local storage
+        const mergedTasks = mergeTasks(
+            localData.tasks || [],
+            cloudData.tasks || [],
+            cloudData.lastModified
+        );
+        const mergedCategories = mergeCategories(
+            localData.categories || [],
+            cloudData.categories || []
+        );
 
-            chrome.storage.local.set({
-                tasks: mergedTasks,
-                categories: mergedCategories,
-            });
-
-            console.log('✅ Remote sync applied. Tasks updated:', mergedTasks.length);
+        return storageSet({
+            tasks: mergedTasks,
+            categories: mergedCategories,
+        }).then(() => {
+            logSuccess(`Remote sync applied. Tasks updated: ${mergedTasks.length}`);
 
             // Refresh UI if available
             if (typeof updateTasksUI === 'function') {
                 updateTasksUI();
             }
         });
+    })
+    .catch((error) => {
+        logError('Remote sync error', error);
     });
 }
 
@@ -228,27 +182,30 @@ function handleRemoteSync(changes) {
  */
 function addTaskWithSync(task) {
     // Ensure task has required sync properties
-    task.modifiedAt = new Date().toISOString();
+    task.modifiedAt = getCurrentTimestamp();
     if (!task.id) {
-        task.id = 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        task.id = generateId('task');
     }
 
-    // Update local storage
-    chrome.storage.local.get(['tasks'], (data) => {
-        const tasks = data.tasks || [];
-        const existingIndex = tasks.findIndex(t => t.id === task.id);
+    // Update local storage and sync
+    storageGet(['tasks'])
+        .then((data) => {
+            const tasks = data.tasks || [];
+            const existingIndex = tasks.findIndex(t => t.id === task.id);
 
-        if (existingIndex >= 0) {
-            tasks[existingIndex] = task;
-        } else {
-            tasks.push(task);
-        }
+            if (existingIndex >= 0) {
+                tasks[existingIndex] = task;
+            } else {
+                tasks.push(task);
+            }
 
-        chrome.storage.local.set({ tasks });
-
-        // Sync to cloud
-        syncTasksWithChrome();
-    });
+            return storageSet({ tasks }).then(() => {
+                syncTasksWithChrome();
+            });
+        })
+        .catch((error) => {
+            logError('Failed to add task', error);
+        });
 }
 
 /**
@@ -256,13 +213,16 @@ function addTaskWithSync(task) {
  * @param {string} taskId - Task ID to delete
  */
 function deleteTaskWithSync(taskId) {
-    chrome.storage.local.get(['tasks'], (data) => {
-        const tasks = (data.tasks || []).filter(t => t.id !== taskId);
-        chrome.storage.local.set({ tasks });
-
-        // Sync to cloud
-        syncTasksWithChrome();
-    });
+    storageGet(['tasks'])
+        .then((data) => {
+            const tasks = (data.tasks || []).filter(t => t.id !== taskId);
+            return storageSet({ tasks }).then(() => {
+                syncTasksWithChrome();
+            });
+        })
+        .catch((error) => {
+            logError('Failed to delete task', error);
+        });
 }
 
 /**
@@ -271,21 +231,26 @@ function deleteTaskWithSync(taskId) {
  * @param {boolean} isCompleted - Completion status
  */
 function updateTaskCompletionWithSync(taskId, isCompleted) {
-    chrome.storage.local.get(['tasks'], (data) => {
-        const tasks = data.tasks || [];
-        const task = tasks.find(t => t.id === taskId);
+    storageGet(['tasks'])
+        .then((data) => {
+            const tasks = data.tasks || [];
+            const task = tasks.find(t => t.id === taskId);
 
-        if (task) {
-            task.completed = isCompleted;
-            task.modifiedAt = new Date().toISOString();
-            if (isCompleted && !task.completedAt) {
-                task.completedAt = new Date().toISOString();
+            if (task) {
+                task.completed = isCompleted;
+                task.modifiedAt = getCurrentTimestamp();
+                if (isCompleted && !task.completedAt) {
+                    task.completedAt = getCurrentTimestamp();
+                }
+
+                return storageSet({ tasks }).then(() => {
+                    syncTasksWithChrome();
+                });
             }
-
-            chrome.storage.local.set({ tasks });
-            syncTasksWithChrome();
-        }
-    });
+        })
+        .catch((error) => {
+            logError('Failed to update task completion', error);
+        });
 }
 
 // ============================================================================
@@ -325,16 +290,16 @@ function checkSyncQuota() {
         const quotaBytes = chrome.storage.sync.QUOTA_BYTES || 102400; // 100KB
         const percentUsed = (bytesInUse / quotaBytes) * 100;
         
-        console.log(`Sync storage: ${bytesInUse}/${quotaBytes} bytes (${percentUsed.toFixed(2)}% used)`);
+        logInfo(`Sync storage: ${bytesInUse}/${quotaBytes} bytes (${percentUsed.toFixed(2)}% used)`);
         
         if (percentUsed > 80) {
-            console.warn('⚠️ Sync storage nearly full!');
+            logWarn('Sync storage nearly full!');
         }
     });
 }
 
 // ============================================================================
-// EXPORT FOR USE
+// INITIALIZATION
 // ============================================================================
 
 // Initialize on load
