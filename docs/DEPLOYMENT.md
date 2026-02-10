@@ -209,6 +209,20 @@ Track all versions in `CHANGELOG.md`:
 **Issue**: Description misleading
 **Solution**: Be honest about features and limitations
 
+### Enhanced Safe Browsing Warning (Local/Unlisted Builds)
+
+If Chrome shows **"This extension is not trusted by Enhanced Safe Browsing"**, it means the
+extension was **installed from a local/unpacked folder** or **side-loaded** (not from the Chrome Web Store).
+This is expected behavior and does **not** indicate a code bug.
+
+**Fix (recommended):**
+1. Publish the extension on the Chrome Web Store.
+2. Install it from the store listing (trusted source).
+
+**For development/testing:**
+- Keep using "Load unpacked" in Developer Mode.
+- The warning will remain until it is installed from the Web Store.
+
 ## Support
 
 - GitHub Issues for bug reports

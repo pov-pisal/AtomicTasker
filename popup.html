@@ -30,11 +30,32 @@
 
         <!-- Category Filter Section -->
         <div class="filter-section">
-            <label for="categoryFilter" class="filter-label">Filter by Category:</label>
-            <select id="categoryFilter" class="category-filter">
-                <option value="">All Tasks</option>
-                <!-- Category options dynamically added here -->
-            </select>
+            <div class="filter-row">
+                <label for="categoryFilter" class="filter-label">Filter by Category:</label>
+                <select id="categoryFilter" class="category-filter">
+                    <option value="">All Tasks</option>
+                    <!-- Category options dynamically added here -->
+                </select>
+            </div>
+            <div class="filter-row">
+                <label for="taskSearchInput" class="filter-label">Search Tasks:</label>
+                <input
+                    type="text"
+                    id="taskSearchInput"
+                    class="task-search"
+                    placeholder="Search by title, notes, link..."
+                    maxlength="100"
+                >
+            </div>
+            <div class="filter-row">
+                <label for="sortSelect" class="filter-label">Sort by:</label>
+                <select id="sortSelect" class="category-filter">
+                    <option value="dueDate">Due date</option>
+                    <option value="priority">Priority</option>
+                    <option value="createdAt">Newest</option>
+                    <option value="title">Title</option>
+                </select>
+            </div>
         </div>
 
         <!-- Add Task Section -->
@@ -46,10 +67,17 @@
                 placeholder="Add a new task..."
                 maxlength="100"
             >
-            <select id="categorySelect" class="category-select">
-                <option value="">No Category</option>
-                <!-- Category options dynamically added here -->
-            </select>
+            <div class="inline-inputs">
+                <select id="categorySelect" class="category-select">
+                    <option value="">No Category</option>
+                    <!-- Category options dynamically added here -->
+                </select>
+                <select id="prioritySelect" class="category-select">
+                    <option value="medium">Priority: Medium</option>
+                    <option value="high">Priority: High</option>
+                    <option value="low">Priority: Low</option>
+                </select>
+            </div>
             <div class="button-group">
                 <button id="quickAddBtn" class="add-btn">+ Quick Add</button>
                 <button id="advancedAddBtn" class="add-btn-secondary">⚙️ Advanced</button>
@@ -94,7 +122,10 @@
 
         <!-- Tasks List Section -->
         <div class="tasks-container">
-            <h2 class="tasks-header">📋 Your Tasks</h2>
+            <div class="tasks-header-row">
+                <h2 class="tasks-header">📋 Your Tasks</h2>
+                <span id="tasksCount" class="count-badge">0</span>
+            </div>
             <div id="tasksList" class="tasks-list">
                 <!-- Tasks dynamically added here -->
             </div>
@@ -106,7 +137,13 @@
         <!-- Completed Tasks Section -->
         <div class="completed-tasks-container">
             <details class="completed-tasks-details">
-                <summary class="completed-tasks-summary">✅ Completed Tasks</summary>
+                <summary class="completed-tasks-summary">
+                    ✅ Completed Tasks
+                    <span id="completedCount" class="count-badge">0</span>
+                </summary>
+                <div class="completed-actions">
+                    <button id="clearCompletedBtn" class="btn-secondary btn-small">Clear Completed</button>
+                </div>
                 <div id="completedTasksList" class="completed-tasks-list">
                     <!-- Completed tasks dynamically added here -->
                 </div>
@@ -140,9 +177,16 @@
                     placeholder="Task name"
                     maxlength="100"
                 >
-                <select id="editCategorySelect" class="category-select">
-                    <option value="">No Category</option>
-                </select>
+                <div class="inline-inputs">
+                    <select id="editCategorySelect" class="category-select">
+                        <option value="">No Category</option>
+                    </select>
+                    <select id="editPrioritySelect" class="category-select">
+                        <option value="medium">Priority: Medium</option>
+                        <option value="high">Priority: High</option>
+                        <option value="low">Priority: Low</option>
+                    </select>
+                </div>
                 <textarea 
                     id="editTaskNotes" 
                     class="task-textarea" 
@@ -184,9 +228,16 @@
                     placeholder="Task name"
                     maxlength="100"
                 >
-                <select id="advCategorySelect" class="category-select">
-                    <option value="">No Category</option>
-                </select>
+                <div class="inline-inputs">
+                    <select id="advCategorySelect" class="category-select">
+                        <option value="">No Category</option>
+                    </select>
+                    <select id="advPrioritySelect" class="category-select">
+                        <option value="medium">Priority: Medium</option>
+                        <option value="high">Priority: High</option>
+                        <option value="low">Priority: Low</option>
+                    </select>
+                </div>
                 <textarea 
                     id="advTaskNotes" 
                     class="task-textarea" 

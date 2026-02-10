@@ -23,7 +23,13 @@ Thank you for your interest in contributing to Atomic Tasker! We welcome bug rep
    - Click "Load unpacked"
    - Select the project folder
 
-3. **Make changes** and refresh the extension
+3. **Inspect background service worker**
+   - Open `chrome://extensions/`
+   - Find **Atomic Tasker**
+   - Under **Inspect views**, click **Service worker (Inactive)**
+   - A DevTools window will open for background logs and errors
+
+4. **Make changes** and refresh the extension
 
 ## Project Structure
 

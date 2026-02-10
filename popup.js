@@ -42,7 +42,7 @@ const popularEmojis = [
 // DOM ELEMENTS
 // ============================================================================
 
-let taskInput, categoryInput, emojiInput, categorySelect, categoryFilter, quickAddBtn, advancedAddBtn, addCategoryBtn, tasksList, categoriesList, motivationQuote, newQuoteBtn, emptyState, emojiPickerBtn, emojiPicker, editModal, editTaskInput, editCategorySelect, editTaskNotes, editTaskLink, editTaskDate, saveEditBtn, advancedAddModal, advTaskInput, advCategorySelect, advTaskNotes, advTaskLink, advTaskDate, advAddBtn, advCancelBtn, completedTasksList, completedEmptyState, signInBtn, signOutBtn, userInfo, userEmail, syncStatus, syncStatusText, syncNowBtn, editCategoryModal, editCategoryEmojiPickerBtn, editCategoryEmojiPicker, editCategoryEmojiInput, editCategoryNameInput, saveEditCategoryBtn, editCategoryModalCloseBtn, editCategoryCancelBtn;
+let taskInput, categoryInput, emojiInput, categorySelect, prioritySelect, categoryFilter, taskSearchInput, sortSelect, quickAddBtn, advancedAddBtn, addCategoryBtn, tasksList, categoriesList, motivationQuote, newQuoteBtn, emptyState, emojiPickerBtn, emojiPicker, editModal, editTaskInput, editCategorySelect, editPrioritySelect, editTaskNotes, editTaskLink, editTaskDate, saveEditBtn, advancedAddModal, advTaskInput, advCategorySelect, advPrioritySelect, advTaskNotes, advTaskLink, advTaskDate, advAddBtn, advCancelBtn, completedTasksList, completedEmptyState, signInBtn, signOutBtn, userInfo, userEmail, syncStatus, syncStatusText, syncNowBtn, editCategoryModal, editCategoryEmojiPickerBtn, editCategoryEmojiPicker, editCategoryEmojiInput, editCategoryNameInput, saveEditCategoryBtn, editCategoryModalCloseBtn, editCategoryCancelBtn, tasksCount, completedCount, clearCompletedBtn;
 
 function initializeDOMElements() {
     taskInput = document.getElementById('taskInput');
@@ -50,6 +50,9 @@ function initializeDOMElements() {
     emojiInput = document.getElementById('emojiInput');
     categorySelect = document.getElementById('categorySelect');
     categoryFilter = document.getElementById('categoryFilter');
+    prioritySelect = document.getElementById('prioritySelect');
+    sortSelect = document.getElementById('sortSelect');
+    taskSearchInput = document.getElementById('taskSearchInput');
     quickAddBtn = document.getElementById('quickAddBtn');
     advancedAddBtn = document.getElementById('advancedAddBtn');
     addCategoryBtn = document.getElementById('addCategoryBtn');
@@ -65,6 +68,7 @@ function initializeDOMElements() {
     editModal = document.getElementById('editModal');
     editTaskInput = document.getElementById('editTaskInput');
     editCategorySelect = document.getElementById('editCategorySelect');
+    editPrioritySelect = document.getElementById('editPrioritySelect');
     editTaskNotes = document.getElementById('editTaskNotes');
     editTaskLink = document.getElementById('editTaskLink');
     editTaskDate = document.getElementById('editTaskDate');
@@ -72,6 +76,7 @@ function initializeDOMElements() {
     advancedAddModal = document.getElementById('advancedAddModal');
     advTaskInput = document.getElementById('advTaskInput');
     advCategorySelect = document.getElementById('advCategorySelect');
+    advPrioritySelect = document.getElementById('advPrioritySelect');
     advTaskNotes = document.getElementById('advTaskNotes');
     advTaskLink = document.getElementById('advTaskLink');
     advTaskDate = document.getElementById('advTaskDate');
@@ -92,6 +97,9 @@ function initializeDOMElements() {
     saveEditCategoryBtn = document.getElementById('saveEditCategoryBtn');
     editCategoryModalCloseBtn = document.getElementById('editCategoryModalCloseBtn');
     editCategoryCancelBtn = document.getElementById('editCategoryCancelBtn');
+    tasksCount = document.getElementById('tasksCount');
+    completedCount = document.getElementById('completedCount');
+    clearCompletedBtn = document.getElementById('clearCompletedBtn');
 }
 
 // ============================================================================
@@ -190,6 +198,8 @@ let state = {
     tasks: [],
     categories: [],
     selectedCategoryFilter: '',
+    searchQuery: '',
+    sortBy: 'dueDate',
     editingTaskId: null,
 };
 
@@ -351,7 +361,7 @@ function saveCategoriesToStorage() {
  * Add a new task to the task list
  * Validates input and creates task object with unique ID
  */
-function addTask(text, categoryId, notes = '', link = '', dueDate = '') {
+function addTask(text, categoryId, notes = '', link = '', dueDate = '', priority = 'medium') {
     // Validate that task name is not empty
     if (!text) {
         showAlert('Please enter a task name');
@@ -367,7 +377,10 @@ function addTask(text, categoryId, notes = '', link = '', dueDate = '') {
         notes: notes,
         link: link,
         dueDate: dueDate,
+        priority: priority || 'medium',
+        completedAt: null,
         createdAt: new Date().toISOString(),
+        modifiedAt: new Date().toISOString(),
         isFavorite: false,
     };
 
@@ -391,9 +404,10 @@ function quickAddTask() {
     
     const taskText = taskInput.value.trim();
     const categoryId = categorySelect.value;
+    const priority = prioritySelect ? prioritySelect.value : 'medium';
 
     if (taskText) {
-        addTask(taskText, categoryId);
+        addTask(taskText, categoryId, '', '', '', priority);
         
         // Clear inputs
         taskInput.value = '';
@@ -413,6 +427,9 @@ function openAdvancedAddModal() {
     // Fetch data from quick add section if available
     advTaskInput.value = taskInput.value.trim();
     advCategorySelect.value = categorySelect.value;
+    if (advPrioritySelect) {
+        advPrioritySelect.value = prioritySelect ? prioritySelect.value : 'medium';
+    }
     
     // Clear other fields
     advTaskNotes.value = '';
@@ -439,19 +456,23 @@ function addAdvancedTask() {
     const notes = advTaskNotes.value.trim();
     const link = advTaskLink.value.trim();
     const dueDate = advTaskDate.value;
+    const priority = advPrioritySelect ? advPrioritySelect.value : 'medium';
 
     if (!taskText) {
         showAlert('Please enter a task name');
         return;
     }
 
-    addTask(taskText, categoryId, notes, link, dueDate);
+    addTask(taskText, categoryId, notes, link, dueDate, priority);
     
     // Clear all inputs
     taskInput.value = '';
     categorySelect.value = '';
     advTaskInput.value = '';
     advCategorySelect.value = '';
+    if (advPrioritySelect) {
+        advPrioritySelect.value = 'medium';
+    }
     advTaskNotes.value = '';
     advTaskLink.value = '';
     advTaskDate.value = '';
@@ -489,6 +510,9 @@ function openEditModal(taskId) {
     state.editingTaskId = taskId;
     editTaskInput.value = task.text;
     editCategorySelect.value = task.categoryId || '';
+    if (editPrioritySelect) {
+        editPrioritySelect.value = task.priority || 'medium';
+    }
     editTaskNotes.value = task.notes || '';
     editTaskLink.value = task.link || '';
     editTaskDate.value = task.dueDate || '';
@@ -504,6 +528,9 @@ function closeEditModal() {
     state.editingTaskId = null;
     editTaskInput.value = '';
     editCategorySelect.value = '';
+    if (editPrioritySelect) {
+        editPrioritySelect.value = 'medium';
+    }
     editTaskNotes.value = '';
     editTaskLink.value = '';
     editTaskDate.value = '';
@@ -519,6 +546,7 @@ function saveTaskEdits() {
     const newNotes = editTaskNotes.value.trim();
     const newLink = editTaskLink.value.trim();
     const newDueDate = editTaskDate.value;
+    const newPriority = editPrioritySelect ? editPrioritySelect.value : 'medium';
 
     if (!newText) {
         showAlert('Please enter a task name');
@@ -532,6 +560,8 @@ function saveTaskEdits() {
         task.notes = newNotes;
         task.link = newLink;
         task.dueDate = newDueDate;
+        task.priority = newPriority;
+        task.modifiedAt = new Date().toISOString();
         saveTasksToStorage();
         closeEditModal();
         renderTasks();
@@ -547,6 +577,8 @@ function toggleTaskCompletion(taskId) {
     const task = state.tasks.find((t) => t.id === taskId);
     if (task) {
         task.completed = !task.completed;
+        task.completedAt = task.completed ? new Date().toISOString() : null;
+        task.modifiedAt = new Date().toISOString();
         saveTasksToStorage();
         renderTasks();
         renderCompletedTasks();
@@ -561,6 +593,7 @@ function toggleTaskFavorite(taskId) {
     const task = state.tasks.find((t) => t.id === taskId);
     if (task && task.completed) {
         task.isFavorite = !task.isFavorite;
+        task.modifiedAt = new Date().toISOString();
         saveTasksToStorage();
         renderTasks();
         renderCompletedTasks();
@@ -578,6 +611,57 @@ function getCategoryLabel(categoryId) {
     const category = state.categories.find((c) => c.id === categoryId);
     if (!category) return '';
     return category.emoji ? `${category.emoji} ${category.name}` : category.name;
+}
+
+/**
+ * Get priority styling info
+ * @param {string} priority
+ * @returns {{label: string, className: string}}
+ */
+function getPriorityMeta(priority) {
+    const normalized = (priority || 'medium').toLowerCase();
+    if (normalized === 'high') {
+        return { label: 'High', className: 'priority-high' };
+    }
+    if (normalized === 'low') {
+        return { label: 'Low', className: 'priority-low' };
+    }
+    return { label: 'Medium', className: 'priority-medium' };
+}
+
+/**
+ * Sort tasks based on current sort selection
+ * @param {Array} tasks
+ * @returns {Array}
+ */
+function sortTasks(tasks) {
+    const sortBy = state.sortBy || 'dueDate';
+    const priorityRank = { high: 3, medium: 2, low: 1 };
+
+    const sorted = [...tasks];
+    sorted.sort((a, b) => {
+        if (sortBy === 'title') {
+            return a.text.localeCompare(b.text);
+        }
+        if (sortBy === 'createdAt') {
+            return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+        }
+        if (sortBy === 'priority') {
+            const aRank = priorityRank[(a.priority || 'medium').toLowerCase()] || 2;
+            const bRank = priorityRank[(b.priority || 'medium').toLowerCase()] || 2;
+            if (bRank !== aRank) return bRank - aRank;
+            return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
+        }
+
+        const aDate = a.dueDate ? new Date(a.dueDate) : null;
+        const bDate = b.dueDate ? new Date(b.dueDate) : null;
+        if (aDate && bDate) return aDate - bDate;
+        if (aDate) return -1;
+        if (bDate) return 1;
+        return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
+    });
+
+    return sorted;
 }
 
 // ============================================================================
@@ -737,11 +821,33 @@ function saveEditCategory() {
  */
 function renderTasks() {
     // Filter tasks based on selected category and exclude completed tasks
-    let filteredTasks = state.tasks.filter((task) => !task.completed);
+    const pendingTasks = state.tasks.filter((task) => !task.completed);
+    let filteredTasks = pendingTasks;
     if (state.selectedCategoryFilter) {
         filteredTasks = filteredTasks.filter(
             (task) => task.categoryId === state.selectedCategoryFilter
         );
+    }
+
+    const query = state.searchQuery.trim().toLowerCase();
+    if (query) {
+        filteredTasks = filteredTasks.filter((task) => {
+            const categoryLabel = getCategoryLabel(task.categoryId).toLowerCase();
+            return (
+                task.text.toLowerCase().includes(query) ||
+                (task.notes || '').toLowerCase().includes(query) ||
+                (task.link || '').toLowerCase().includes(query) ||
+                categoryLabel.includes(query)
+            );
+        });
+    }
+
+    if (tasksCount) {
+        const displayCount = filteredTasks.length;
+        const totalCount = pendingTasks.length;
+        tasksCount.textContent = (state.selectedCategoryFilter || query)
+            ? `${displayCount}/${totalCount}`
+            : `${totalCount}`;
     }
 
     // Clear task list
@@ -755,10 +861,14 @@ function renderTasks() {
 
     emptyState.style.display = 'none';
 
+    const sortedTasks = sortTasks(filteredTasks);
+
     // Render each task
-    filteredTasks.forEach((task) => {
+    sortedTasks.forEach((task) => {
         const taskElement = document.createElement('div');
         taskElement.className = `task-item ${task.completed ? 'completed' : ''}`;
+
+        const priorityMeta = getPriorityMeta(task.priority);
         
         // Format due date if exists
         let dueDateDisplay = '';
@@ -798,9 +908,12 @@ function renderTasks() {
             >
 
             <!-- Task Content -->
-            <div class="task-content">
+            <div class="task-content" data-edit-id="${task.id}">
                 <span class="task-text">${escapeHtml(task.text)}</span>
-                ${task.categoryId ? `<span class="task-category">${getCategoryLabel(task.categoryId)}</span>` : ''}
+                <div class="task-badges">
+                    ${task.categoryId ? `<span class="task-category">${getCategoryLabel(task.categoryId)}</span>` : ''}
+                    <span class="priority-badge ${priorityMeta.className}">${priorityMeta.label}</span>
+                </div>
                 <div class="task-metadata">
                     ${dueDateDisplay}
                     ${linkDisplay}
@@ -924,7 +1037,25 @@ function renderCategorySelect() {
  */
 function renderCompletedTasks() {
     // Get all completed tasks
-    const completedTasks = state.tasks.filter((task) => task.completed);
+    let completedTasks = state.tasks.filter((task) => task.completed);
+
+    const query = state.searchQuery.trim().toLowerCase();
+    if (query) {
+        completedTasks = completedTasks.filter((task) => {
+            const categoryLabel = getCategoryLabel(task.categoryId).toLowerCase();
+            return (
+                task.text.toLowerCase().includes(query) ||
+                (task.notes || '').toLowerCase().includes(query) ||
+                (task.link || '').toLowerCase().includes(query) ||
+                categoryLabel.includes(query)
+            );
+        });
+    }
+
+    if (completedCount) {
+        const totalCompleted = state.tasks.filter((task) => task.completed).length;
+        completedCount.textContent = query ? `${completedTasks.length}/${totalCompleted}` : `${totalCompleted}`;
+    }
 
     // Clear completed tasks list
     completedTasksList.innerHTML = '';
@@ -937,10 +1068,14 @@ function renderCompletedTasks() {
 
     completedEmptyState.style.display = 'none';
 
+    const sortedCompleted = sortTasks(completedTasks);
+
     // Render each completed task
-    completedTasks.forEach((task) => {
+    sortedCompleted.forEach((task) => {
         const taskElement = document.createElement('div');
         taskElement.className = 'completed-task-item';
+
+        const priorityMeta = getPriorityMeta(task.priority);
         
         // Format due date if exists
         let dueDateDisplay = '';
@@ -972,7 +1107,10 @@ function renderCompletedTasks() {
             <!-- Task Content -->
             <div class="task-content">
                 <span class="task-text completed-text">${escapeHtml(task.text)}</span>
-                ${task.categoryId ? `<span class="task-category">${getCategoryLabel(task.categoryId)}</span>` : ''}
+                <div class="task-badges">
+                    ${task.categoryId ? `<span class="task-category">${getCategoryLabel(task.categoryId)}</span>` : ''}
+                    <span class="priority-badge ${priorityMeta.className}">${priorityMeta.label}</span>
+                </div>
                 <div class="task-metadata">
                     ${dueDateDisplay}
                     ${linkDisplay}
@@ -1080,6 +1218,24 @@ function setupEventListeners() {
         renderTasks();
     });
 
+    // Sort change
+    if (sortSelect) {
+        sortSelect.addEventListener('change', (e) => {
+            state.sortBy = e.target.value;
+            renderTasks();
+            renderCompletedTasks();
+        });
+    }
+
+    // Search tasks
+    if (taskSearchInput) {
+        taskSearchInput.addEventListener('input', (e) => {
+            state.searchQuery = e.target.value;
+            renderTasks();
+            renderCompletedTasks();
+        });
+    }
+
     // New quote button
     newQuoteBtn.addEventListener('click', displayRandomQuote);
 
@@ -1154,6 +1310,13 @@ function setupEventListeners() {
                 window.open(href, '_blank');
             }
             e.preventDefault();
+            return;
+        }
+
+        const taskContent = e.target.closest('.task-content');
+        if (taskContent && taskContent.dataset.editId) {
+            const taskId = parseInt(taskContent.dataset.editId);
+            openEditModal(taskId);
         }
     });
 
@@ -1176,6 +1339,13 @@ function setupEventListeners() {
                 window.open(href, '_blank');
             }
             e.preventDefault();
+            return;
+        }
+
+        const taskContent = e.target.closest('.task-content');
+        if (taskContent && taskContent.dataset.editId) {
+            const taskId = parseInt(taskContent.dataset.editId);
+            openEditModal(taskId);
         }
     });
 
@@ -1204,6 +1374,16 @@ function setupEventListeners() {
     editCategoryModalCloseBtn.addEventListener('click', closeEditCategoryModal);
     editCategoryCancelBtn.addEventListener('click', closeEditCategoryModal);
 
+    // Clear completed tasks
+    if (clearCompletedBtn) {
+        clearCompletedBtn.addEventListener('click', clearCompletedTasks);
+    }
+
+    // Clear completed tasks
+    if (clearCompletedBtn) {
+        clearCompletedBtn.addEventListener('click', clearCompletedTasks);
+    }
+
     // Edit category name on Enter key
     editCategoryNameInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
@@ -1220,6 +1400,62 @@ function setupEventListeners() {
 
     // Focus on task input when popup opens
     taskInput.focus();
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key.toLowerCase() === 'k') {
+            e.preventDefault();
+            if (taskSearchInput) taskSearchInput.focus();
+        }
+        if (e.ctrlKey && e.key === 'Enter') {
+            e.preventDefault();
+            quickAddTask();
+        }
+    });
+}
+
+/**
+ * Clear all completed tasks
+ */
+function clearCompletedTasks() {
+    const completedTotal = state.tasks.filter((task) => task.completed).length;
+    if (completedTotal === 0) {
+        showAlert('No completed tasks to clear.');
+        return;
+    }
+
+    showConfirmation(
+        'Clear Completed Tasks?',
+        'This will permanently remove all completed tasks.',
+        () => {
+            state.tasks = state.tasks.filter((task) => !task.completed);
+            saveTasksToStorage();
+            renderTasks();
+            renderCompletedTasks();
+        }
+    );
+}
+
+/**
+ * Clear all completed tasks
+ */
+function clearCompletedTasks() {
+    const completedCount = state.tasks.filter((task) => task.completed).length;
+    if (completedCount === 0) {
+        showAlert('No completed tasks to clear.');
+        return;
+    }
+
+    showConfirmation(
+        'Clear Completed Tasks?',
+        'This will permanently remove all completed tasks.',
+        () => {
+            state.tasks = state.tasks.filter((task) => !task.completed);
+            saveTasksToStorage();
+            renderTasks();
+            renderCompletedTasks();
+        }
+    );
 }
 
 /**
