@@ -1,148 +1,75 @@
-# ⚛ Atomic Tasker
+# 🎯 Atomic Tasker
 
-**Build consistent habits, one task at a time.**
+**Build habits, one task at a time** ✨
 
-A lightweight, privacy-first Chrome extension for task management inspired by Atomic Habits methodology. Create, organize, and track your daily tasks with automatic cross-device synchronization.
+A modern, minimal productivity task manager Chrome extension with premium UI design.
 
-## ✨ Features
-cbsjkabckabjcs
-- 📝 **Quick Task Creation** - Add tasks instantly with a single click
-- 🏷️ **Smart Categories** - Organize tasks by custom categories with emoji icons
-- ☑️ **Task Tracking** - Mark tasks complete, add notes, links, and due dates
-- ⭐ **Favorites** - Star important tasks for quick access
-- 💾 **Auto-Sync** - Tasks automatically sync across all your Chrome devices
-- 📱 **Offline Support** - Works seamlessly offline, syncs when back online
-- 🔒 **Privacy First** - No external accounts needed, no data tracking
-- 🎨 **Beautiful UI** - Modern glassmorphism design with dark theme
-- 💯 **100% Free** - Forever free, no premium features
+## ⚡ Features
 
-## 🚀 Getting Started
+- 📝 Create, edit, complete, and delete tasks
+- 🏷️ Organize with custom categories and emojis
+- ⭐ Priority levels (High, Medium, Low)
+- 🔄 Optional Google Tasks sync
+- 🎨 Premium dark theme with glassmorphism
+- ♿ WCAG AA accessibility
+- 💾 Local storage persistence
 
-### Installation
+## 🚀 Installation
 
-1. **From Chrome Web Store** (Recommended)
-   - Search for "Atomic Tasker" in [Chrome Web Store](https://chrome.google.com/webstore)
-   - Click "Add to Chrome"
-   - Confirm permissions
+### From Source
+1. Clone this repo
+2. Go to `chrome://extensions/`
+3. Enable **Developer Mode** (top right)
+4. Click **Load unpacked**
+5. Select the folder
 
-2. **From Source** (Development)
-   - Clone this repository
-   - Open `chrome://extensions/`
-   - Enable "Developer mode"
-   - Click "Load unpacked"
-   - Select the project folder
+## 📖 Quick Usage
 
-### First Use
+1. Click extension icon
+2. Type task name
+3. Select category & priority
+4. Click "+ Quick Add"
+5. Done! ✅
 
-1. Click the Atomic Tasker extension icon
-2. See the welcome wizard (one-time setup)
-3. Click "Get Started"
-4. You're ready to create tasks!
+## 🏗️ Project Structure
 
-## 📖 How to Use
+```
+AtomicTasker/
+├── popup.html           # Main UI
+├── popup.js             # Task logic
+├── style.css            # Styles (premium design)
+├── manifest.json        # Extension config
+├── modal.js             # Edit modal
+├── utils.js             # Utilities
+├── chrome-sync.js       # Chrome Sync API
+├── google-sync.js       # Google Tasks auth
+├── setup-wizard.*       # Setup guide
+└── assets/              # Icons & images
+```
 
-### Creating Tasks
+## 🔒 Privacy
 
-**Quick Add:**
-- Type task name → Select category → Click "Quick Add"
-
-**Advanced Add:**
-- Click "Advanced" for full options:
-  - Add notes and links
-  - Set due dates
-  - Assign to categories
-
-### Managing Tasks
-
-- **Complete**: Click the checkbox next to any task
-- **Edit**: Click a task to edit it
-- **Delete**: Click the trash icon to remove
-- **Star**: Click the star to mark as favorite
-- **Filter**: Use category filter to see specific task groups
-
-### Categories
-
-- **Create**: Click "Manage Categories"
-- **Edit**: Rename or change emoji
-- **Delete**: Remove category (tasks keep their content)
-- **Organize**: Group related tasks together
-
-### Completed Tasks
-
-- Automatically moved to "Completed Tasks" section
-- Collapsible for cleaner view
-- Can be deleted or restored
-
-## 🔄 Syncing
-
-Your tasks automatically sync across all Chrome devices where you're signed in to your Google account.
-
-- **Automatic**: Syncs every 30 seconds
-- **Manual**: Click the sync button anytime
-- **Offline**: Changes queue offline, sync when back online
-- **Conflict Resolution**: Keeps the newest version when devices differ
-
-## 🔒 Privacy & Security
-
-- ✅ No accounts required
-- ✅ No data sent to external servers
-- ✅ No tracking or analytics
-- ✅ Uses Chrome's built-in sync (encrypted)
-- ✅ Open source and auditable
-
-See [PRIVACY_POLICY.md](./docs/PRIVACY_POLICY.md) for details.
-
-## 💡 Use Cases
-
-- **Daily Habits** - Build consistent routines
-- **Todo Lists** - Manage day-to-day tasks
-- **Project Planning** - Break down projects into tasks
-- **Shopping Lists** - Quick list creation with categories
+✅ All data stored locally  
+✅ No tracking or external accounts  
+✅ Optional Google Tasks sync  
+✅ No required 3rd party services
 - **Study Goals** - Track learning objectives
 
-## 🛠️ Technical Details
+## 🛠️ Tech Stack
 
-- **Framework**: Vanilla JavaScript (no dependencies)
-- **Storage**: Chrome Storage API (local + sync)
-- **Manifest**: V3 (latest Chrome extension standard)
-- **Size**: ~150KB uncompressed
+- **HTML5** - Structure
+- **CSS3** - Styling (glassmorphism, gradients, animations)
+- **JavaScript** - Logic
+- **Chrome Storage API** - Persistence
+- **Google Tasks API** - Optional sync
 
-## 📄 License
+## � License
 
-MIT License - See [LICENSE](./LICENSE) file
+MIT License - See [LICENSE](LICENSE)
 
 ## 🤝 Contributing
 
-Contributions welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push and create a Pull Request
-
-## 🐛 Bug Reports
-
-Found an issue? Please report it in the Issues section with:
-- Clear description of the problem
-- Steps to reproduce
-- Screenshots if applicable
-- Your Chrome version
-
-## 📞 Support
-
-- Read the [User Guide](./docs/USER_GUIDE.md)
-- Check [FAQ](./docs/FAQ.md)
-- Open an issue on GitHub
-
-## 🎯 Roadmap
-
-- [ ] Keyboard shortcuts
-- [ ] Task priorities
-- [ ] Recurring tasks
-- [ ] Pomodoro timer integration
-- [ ] Export/Import tasks
-- [ ] Dark/Light theme toggle
-- [ ] Multiple sync options
+See [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## 📊 Stats
 
