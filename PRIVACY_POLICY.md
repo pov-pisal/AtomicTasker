@@ -1,47 +1,105 @@
-# Privacy Policy - Atomic Tasker
+# Privacy Policy for Atomic Tasker
 
-**Last Updated:** February 13, 2026
+**Last Updated**: February 13, 2026
 
 ## Overview
 
-Atomic Tasker is committed to protecting your privacy. This extension does **NOT** collect, store, or share any personal data with third parties.
+Atomic Tasker ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we handle your information when you use our Chrome Extension.
 
-## What We DON'T Do
+## Information We Do NOT Collect
 
-❌ **No Data Collection** - We don't track you  
-❌ **No External Servers** - All data stays on your device  
-❌ **No Analytics** - No usage tracking or reporting  
-❌ **No Cookies** - We don't use cookies  
-❌ **No Third-party Services** - We don't share data  
-❌ **No Advertisements** - No ads or sponsored content  
+❌ We do **NOT** collect:
+- Personal identification information (name, email, phone)
+- Browsing history or visited websites
+- Location data
+- Device identifiers or IP addresses
+- Tracking cookies or analytics
+- Usage analytics or telemetry
+- Third-party data sharing
 
-## How Your Data is Stored
+## Information We DO Collect
 
-✅ **Local Storage Only** - Tasks stored in Chrome's local storage  
-✅ **On Your Device** - Data never leaves your computer  
-✅ **Optional Google Sync** - Only if you explicitly enable it  
-✅ **Encrypted** - Chrome handles encryption automatically  
+✅ We **ONLY** store locally on your device:
+- Tasks you create (title, description, due date, priority)
+- Categories you define
+- Your preferences and settings
+- All data remains **100% private** on your computer
 
-## Permissions Explained
+## Data Storage
 
-### Storage Permission
-- Used to save your tasks locally
-- No data sent anywhere
+### Local Storage
+- All your data is stored **locally in Chrome's storage**
+- Data never leaves your device
+- Data is deleted when you uninstall the extension
+- We cannot access your data
 
-### Google Tasks Sync (Optional)
-- Only activated if you manually enable it
-- Requires your explicit consent
-- You control when sync happens
-- Can be disabled anytime
+### Optional: Google Sync (Your Choice)
+- You can optionally enable Google Sync
+- Only syncs between YOUR Chrome devices
+- Requires your Google account (you control this)
+- Google's privacy policy applies: https://policies.google.com/privacy
+
+## Permissions We Request
+
+| Permission | Why We Need It |
+|-----------|----------------|
+| `storage` | Save your tasks locally |
+| `tabs` | Optional: Link tasks to open tabs |
+| `activeTab` | Optional: Create tasks from current page |
+
+All permissions are **optional** and used only for features you enable.
+
+## Third-Party Services
+
+### Google Fonts (Optional)
+- Used for UI design
+- Loaded from Google CDN
+- No tracking or data collection
+- Can be disabled in settings
+
+### Google Sync (Optional)
+- You control this completely
+- Only syncs your task data between devices
+- Subject to Google's privacy policy
+
+## Your Rights
+
+✅ You have full control:
+- Export all your data anytime
+- Delete all data instantly
+- Disable sync at any time
+- No account required to use the extension
+- Switch browsers without losing data (local backup)
+
+## Security
+
+🔒 We take security seriously:
+- No internet requests for your data
+- Content Security Policy (CSP) enabled
+- No eval() or dynamic code execution
+- Code reviewed for security vulnerabilities
+- Regular security updates
 
 ## Changes to This Policy
 
-We may update this policy. Changes will be reflected here with the updated date above.
+We may update this policy occasionally. Changes will be posted here with an updated date.
 
-## Questions?
+## Contact Us
 
-If you have privacy concerns, please submit an issue on GitHub or contact us through the Chrome Web Store.
+Questions about privacy? Contact us:
+- GitHub: [AtomicTasker](https://github.com/pov-pisal/AtomicTasker)
+- Issues: [GitHub Issues](https://github.com/pov-pisal/AtomicTasker/issues)
+
+## Summary
+
+✨ **In Plain English:**
+- Your tasks stay on YOUR device
+- We never see your data
+- No tracking, no ads, no selling data
+- You're in complete control
+- Free and open source
 
 ---
 
-**Atomic Tasker** - Privacy First, Always.
+**Privacy Policy Version**: 1.0  
+**Atomic Tasker Version**: 1.1.1+
