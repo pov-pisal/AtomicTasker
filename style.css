@@ -599,8 +599,8 @@ body::-webkit-scrollbar-thumb:hover {
     z-index: 1000;
     box-shadow: var(--shadow-md);
     min-width: 280px;
-    max-height: 200px;
-    overflow-y: auto;
+    max-height: none;
+    overflow-y: visible;
     scrollbar-width: none;
 }
 
