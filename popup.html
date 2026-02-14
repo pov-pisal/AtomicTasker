@@ -22,7 +22,7 @@
                 </div>
             </div>
             <!-- Sync Status -->
-            <div id="syncStatus" class="sync-status" style="display: none;">
+            <div id="syncStatus" class="sync-status hidden">
                 <span id="syncStatusText" class="sync-status-text">Synced ✓</span>
                 <button id="syncNowBtn" class="sync-now-btn" title="Sync with Google Tasks">↻ Sync</button>
             </div>
@@ -91,7 +91,7 @@
                 <div class="category-input-group">
                     <div class="emoji-picker-container">
                         <button id="emojiPickerBtn" class="emoji-picker-btn">😀</button>
-                        <div id="emojiPicker" class="emoji-picker-menu" style="display: none;">
+                        <div id="emojiPicker" class="emoji-picker-menu hidden">
                             <div class="emoji-picker-grid">
                                 💻 📚 🧘 💪 🎯 🏆 ⭐ 🔥 🎨 🎵 🏃 🍎 😴 🧠 📞
                             </div>
@@ -163,7 +163,7 @@
     </div>
 
     <!-- Edit Task Modal -->
-    <div id="editModal" class="modal" style="display: none;">
+    <div id="editModal" class="modal hidden">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Edit Task</h3>
@@ -214,7 +214,7 @@
     </div>
 
     <!-- Advanced Add Task Modal -->
-    <div id="advancedAddModal" class="modal" style="display: none;">
+    <div id="advancedAddModal" class="modal hidden">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Add Task - Advanced</h3>
@@ -266,36 +266,30 @@
     </div>
 
     <!-- Edit Category Modal -->
-    <div id="editCategoryModal" class="modal" style="display: none;">
+    <div id="editCategoryModal" class="modal hidden">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Edit Category</h3>
                 <button class="modal-close" id="editCategoryModalCloseBtn">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="emoji-picker-container">
-                    <button id="editCategoryEmojiPickerBtn" class="emoji-picker-btn">😀</button>
-                    <div id="editCategoryEmojiPicker" class="emoji-picker-menu" style="display: none;">
-                        <div class="emoji-picker-grid">
-                            💻 📚 🧘 💪 🎯 🏆 ⭐ 🔥 🎨 🎵 🏃 🍎 😴 🧠 📞
+                <div class="edit-category-input-row">
+                    <input 
+                        type="text" 
+                        id="editCategoryNameInput" 
+                        class="category-input" 
+                        placeholder="Category name"
+                        maxlength="50"
+                    >
+                    <div class="emoji-picker-container">
+                        <button id="editCategoryEmojiPickerBtn" class="emoji-picker-btn">😀 Select Emoji</button>
+                        <div id="editCategoryEmojiPicker" class="emoji-picker-menu hidden">
+                            <div class="emoji-picker-grid">
+                                💻 📚 🧘 💪 🎯 🏆 ⭐ 🔥 🎨 🎵 🏃 🍎 😴 🧠 📞
+                            </div>
                         </div>
                     </div>
                 </div>
-                <input 
-                    type="text" 
-                    id="editCategoryEmojiInput" 
-                    class="emoji-input" 
-                    placeholder="Selected emoji"
-                    maxlength="2"
-                    readonly
-                >
-                <input 
-                    type="text" 
-                    id="editCategoryNameInput" 
-                    class="category-input" 
-                    placeholder="Category name"
-                    maxlength="50"
-                >
             </div>
             <div class="modal-footer">
                 <button id="editCategoryCancelBtn" class="btn-secondary">Cancel</button>
@@ -305,7 +299,7 @@
     </div>
 
     <!-- Confirmation Modal -->
-    <div id="confirmModal" class="modal" style="display: none;">
+    <div id="confirmModal" class="modal hidden">
         <div class="modal-content confirm-content">
             <div class="modal-body confirm-body">
                 <div class="confirm-icon">⚠️</div>

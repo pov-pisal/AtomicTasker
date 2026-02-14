@@ -81,8 +81,8 @@ function completeWizard() {
 
     // Close the wizard and show main popup
     const wizardContainer = document.querySelector('.wizard-container');
-    wizardContainer.style.opacity = '0';
-    wizardContainer.style.transform = 'scale(0.95)';
+    wizardContainer.classList.add('fade-out');
+    wizardContainer.classList.add('scale-down');
 
     setTimeout(() => {
         window.location.href = 'popup.html';

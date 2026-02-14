@@ -472,3 +472,26 @@ body {
     }
 }
 */
+
+/* ============================================================================
+   VISIBILITY HELPER CLASSES (CSP-compliant)
+   ============================================================================ */
+.hidden {
+    display: none !important;
+}
+
+.visible {
+    display: block !important;
+}
+
+.flex-visible {
+    display: flex !important;
+}
+
+.fade-out {
+    opacity: 0;
+}
+
+.scale-down {
+    transform: scale(0.95);
+}

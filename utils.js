@@ -45,7 +45,11 @@ function cacheElements(selectors) {
  */
 function toggleDisplay(element, show = true) {
     if (element) {
-        element.style.display = show ? '' : 'none';
+        if (show) {
+            element.classList.remove('hidden');
+        } else {
+            element.classList.add('hidden');
+        }
     }
 }
 

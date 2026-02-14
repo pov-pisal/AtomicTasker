@@ -42,7 +42,7 @@ const popularEmojis = [
 // DOM ELEMENTS
 // ============================================================================
 
-let taskInput, categoryInput, emojiInput, categorySelect, prioritySelect, categoryFilter, taskSearchInput, sortSelect, quickAddBtn, advancedAddBtn, addCategoryBtn, tasksList, categoriesList, motivationQuote, newQuoteBtn, emptyState, emojiPickerBtn, emojiPicker, editModal, editTaskInput, editCategorySelect, editPrioritySelect, editTaskNotes, editTaskLink, editTaskDate, saveEditBtn, advancedAddModal, advTaskInput, advCategorySelect, advPrioritySelect, advTaskNotes, advTaskLink, advTaskDate, advAddBtn, advCancelBtn, completedTasksList, completedEmptyState, signInBtn, signOutBtn, userInfo, userEmail, syncStatus, syncStatusText, syncNowBtn, editCategoryModal, editCategoryEmojiPickerBtn, editCategoryEmojiPicker, editCategoryEmojiInput, editCategoryNameInput, saveEditCategoryBtn, editCategoryModalCloseBtn, editCategoryCancelBtn, tasksCount, completedCount, clearCompletedBtn;
+let taskInput, categoryInput, emojiInput, categorySelect, prioritySelect, categoryFilter, taskSearchInput, sortSelect, quickAddBtn, advancedAddBtn, addCategoryBtn, tasksList, categoriesList, motivationQuote, newQuoteBtn, emptyState, emojiPickerBtn, emojiPicker, editModal, editTaskInput, editCategorySelect, editPrioritySelect, editTaskNotes, editTaskLink, editTaskDate, saveEditBtn, advancedAddModal, advTaskInput, advCategorySelect, advPrioritySelect, advTaskNotes, advTaskLink, advTaskDate, advAddBtn, advCancelBtn, completedTasksList, completedEmptyState, signInBtn, signOutBtn, userInfo, userEmail, syncStatus, syncStatusText, syncNowBtn, editCategoryModal, editCategoryEmojiPickerBtn, editCategoryEmojiPicker, editCategoryNameInput, saveEditCategoryBtn, editCategoryModalCloseBtn, editCategoryCancelBtn, tasksCount, completedCount, clearCompletedBtn;
 
 function initializeDOMElements() {
     taskInput = document.getElementById('taskInput');
@@ -92,7 +92,6 @@ function initializeDOMElements() {
     editCategoryModal = document.getElementById('editCategoryModal');
     editCategoryEmojiPickerBtn = document.getElementById('editCategoryEmojiPickerBtn');
     editCategoryEmojiPicker = document.getElementById('editCategoryEmojiPicker');
-    editCategoryEmojiInput = document.getElementById('editCategoryEmojiInput');
     editCategoryNameInput = document.getElementById('editCategoryNameInput');
     saveEditCategoryBtn = document.getElementById('saveEditCategoryBtn');
     editCategoryModalCloseBtn = document.getElementById('editCategoryModalCloseBtn');
@@ -125,7 +124,7 @@ function showConfirmation(title, message, onConfirm) {
     confirmMessage.textContent = message;
     confirmCallback = onConfirm;
 
-    confirmModal.style.display = 'flex';
+    confirmModal.classList.remove('hidden');
 
     // Clear previous listeners by cloning buttons
     const newOkBtn = confirmOkBtn.cloneNode(true);
@@ -136,11 +135,11 @@ function showConfirmation(title, message, onConfirm) {
     // Add new listeners
     newOkBtn.addEventListener('click', () => {
         confirmCallback();
-        confirmModal.style.display = 'none';
+        confirmModal.classList.add('hidden');
     });
 
     newCancelBtn.addEventListener('click', () => {
-        confirmModal.style.display = 'none';
+        confirmModal.classList.add('hidden');
     });
 }
 
@@ -161,7 +160,7 @@ function showAlert(message) {
     confirmOkBtn.textContent = 'OK';
     confirmOkBtn.className = 'btn-primary'; // Change button style from danger to primary
 
-    confirmModal.style.display = 'flex';
+    confirmModal.classList.remove('hidden');
 
     // Center the footer for alerts
     confirmFooter.style.justifyContent = 'center';
@@ -171,20 +170,20 @@ function showAlert(message) {
     confirmOkBtn.parentNode.replaceChild(newOkBtn, confirmOkBtn);
 
     // Hide cancel button for alerts
-    confirmCancelBtn.style.display = 'none';
+    confirmCancelBtn.classList.add('hidden');
 
     // Add new listener
     newOkBtn.addEventListener('click', () => {
-        confirmModal.style.display = 'none';
-        confirmCancelBtn.style.display = 'block'; // Show it again for next use
+        confirmModal.classList.add('hidden');
+        confirmCancelBtn.classList.remove('hidden'); // Show it again for next use
         confirmFooter.style.justifyContent = ''; // Reset for next use
     });
 
     // Show cancel button again when modal is closed
     confirmModal.addEventListener('click', (e) => {
         if (e.target === confirmModal) {
-            confirmModal.style.display = 'none';
-            confirmCancelBtn.style.display = 'block';
+            confirmModal.classList.add('hidden');
+            confirmCancelBtn.classList.remove('hidden');
         }
     });
 }
@@ -436,7 +435,7 @@ function openAdvancedAddModal() {
     advTaskLink.value = '';
     advTaskDate.value = '';
     
-    advancedAddModal.style.display = 'flex';
+    advancedAddModal.classList.remove('hidden');
     advTaskInput.focus();
 }
 
@@ -444,7 +443,7 @@ function openAdvancedAddModal() {
  * Close advanced add task modal
  */
 function closeAdvancedAddModal() {
-    advancedAddModal.style.display = 'none';
+    advancedAddModal.classList.add('hidden');
 }
 
 /**
@@ -516,7 +515,7 @@ function openEditModal(taskId) {
     editTaskNotes.value = task.notes || '';
     editTaskLink.value = task.link || '';
     editTaskDate.value = task.dueDate || '';
-    editModal.style.display = 'flex';
+    editModal.classList.remove('hidden');
     editTaskInput.focus();
 }
 
@@ -524,7 +523,7 @@ function openEditModal(taskId) {
  * Close the edit modal
  */
 function closeEditModal() {
-    editModal.style.display = 'none';
+    editModal.classList.add('hidden');
     state.editingTaskId = null;
     editTaskInput.value = '';
     editCategorySelect.value = '';
@@ -758,11 +757,11 @@ function openEditCategoryModal(categoryId) {
 
     // Populate the modal with current category data
     editCategoryNameInput.value = category.name;
-    editCategoryEmojiInput.value = category.emoji || '';
+    editCategoryEmojiPickerBtn.textContent = category.emoji || '😀';
     editCategoryEmojiPickerBtn.textContent = category.emoji || '😀';
 
     // Show the modal
-    editCategoryModal.style.display = 'block';
+    editCategoryModal.classList.remove('hidden');
     editCategoryNameInput.focus();
 }
 
@@ -775,7 +774,7 @@ function saveEditCategory() {
     
     if (!category) return;
 
-    const emoji = editCategoryEmojiInput.value.trim();
+    const emoji = editCategoryEmojiPickerBtn.textContent.trim();
     const name = editCategoryNameInput.value.trim();
 
     // Validate inputs
@@ -806,7 +805,7 @@ function saveEditCategory() {
     renderTasks();
 
     // Close modal
-    editCategoryModal.style.display = 'none';
+    editCategoryModal.classList.add('hidden');
     showAlert('Category updated successfully! ✓');
 }
 
@@ -855,11 +854,11 @@ function renderTasks() {
 
     // Show empty state or render tasks
     if (filteredTasks.length === 0) {
-        emptyState.style.display = 'block';
+        emptyState.classList.remove('hidden');
         return;
     }
 
-    emptyState.style.display = 'none';
+    emptyState.classList.add('hidden');
 
     const sortedTasks = sortTasks(filteredTasks);
 
@@ -1062,11 +1061,11 @@ function renderCompletedTasks() {
 
     // Show empty state or render tasks
     if (completedTasks.length === 0) {
-        completedEmptyState.style.display = 'block';
+        completedEmptyState.classList.remove('hidden');
         return;
     }
 
-    completedEmptyState.style.display = 'none';
+    completedEmptyState.classList.add('hidden');
 
     const sortedCompleted = sortTasks(completedTasks);
 
@@ -1163,7 +1162,7 @@ function setupEventListeners() {
             const success = await signInWithGoogle();
             if (success) {
                 updateAuthUI();
-                syncStatus.style.display = 'flex';
+                syncStatus.classList.remove('hidden');
             }
         });
     }
@@ -1173,7 +1172,7 @@ function setupEventListeners() {
         signOutBtn.addEventListener('click', async () => {
             await signOutFromGoogle();
             updateAuthUI();
-            syncStatus.style.display = 'none';
+            syncStatus.classList.add('hidden');
         });
     }
 
@@ -1465,7 +1464,7 @@ function setupEmojiPicker() {
     // Toggle emoji picker visibility
     emojiPickerBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
+        emojiPicker.classList.toggle('hidden');
     });
 
     // Populate emoji picker with popular emojis
@@ -1478,7 +1477,7 @@ function setupEmojiPicker() {
         button.addEventListener('click', () => {
             emojiInput.value = emoji;
             emojiPickerBtn.textContent = emoji;
-            emojiPicker.style.display = 'none';
+            emojiPicker.classList.add('hidden');
         });
         emojiGrid.appendChild(button);
     });
@@ -1486,14 +1485,14 @@ function setupEmojiPicker() {
     // Close emoji picker when clicking outside
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.emoji-picker-container')) {
-            emojiPicker.style.display = 'none';
+            emojiPicker.classList.add('hidden');
         }
     });
 
     // Setup edit category emoji picker
     editCategoryEmojiPickerBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        editCategoryEmojiPicker.style.display = editCategoryEmojiPicker.style.display === 'none' ? 'block' : 'none';
+        editCategoryEmojiPicker.classList.toggle('hidden');
     });
 
     // Populate edit category emoji picker with popular emojis
@@ -1504,9 +1503,8 @@ function setupEmojiPicker() {
         button.className = 'emoji-option';
         button.textContent = emoji;
         button.addEventListener('click', () => {
-            editCategoryEmojiInput.value = emoji;
             editCategoryEmojiPickerBtn.textContent = emoji;
-            editCategoryEmojiPicker.style.display = 'none';
+            editCategoryEmojiPicker.classList.add('hidden');
         });
         editCategoryEmojiGrid.appendChild(button);
     });
@@ -1514,7 +1512,7 @@ function setupEmojiPicker() {
     // Close edit category emoji picker when clicking outside
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.emoji-picker-container')) {
-            editCategoryEmojiPicker.style.display = 'none';
+            editCategoryEmojiPicker.classList.add('hidden');
         }
     });
 }
@@ -1523,9 +1521,8 @@ function setupEmojiPicker() {
  * Close edit category modal
  */
 function closeEditCategoryModal() {
-    editCategoryModal.style.display = 'none';
+    editCategoryModal.classList.add('hidden');
     editCategoryNameInput.value = '';
-    editCategoryEmojiInput.value = '';
     editCategoryEmojiPickerBtn.textContent = '😀';
 }
 
@@ -1538,12 +1535,12 @@ function closeEditCategoryModal() {
  */
 function updateAuthUI() {
     if (googleSyncState.isAuthenticated) {
-        signInBtn.style.display = 'none';
-        userInfo.style.display = 'flex';
+        signInBtn.classList.add('hidden');
+        userInfo.classList.remove('hidden');
         userEmail.textContent = googleSyncState.userEmail;
     } else {
-        signInBtn.style.display = 'block';
-        userInfo.style.display = 'none';
+        signInBtn.classList.remove('hidden');
+        userInfo.classList.add('hidden');
     }
 }
 

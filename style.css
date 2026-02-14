@@ -561,25 +561,43 @@ body::-webkit-scrollbar-thumb:hover {
     align-items: center;
 }
 
+.edit-category-input-row {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+}
+
+.edit-category-input-row .emoji-picker-container {
+    flex-shrink: 0;
+    width: 100%;
+}
+
+.edit-category-input-row .category-input {
+    flex: 1;
+    width: 100%;
+}
+
 .emoji-picker-container {
     position: relative;
 }
 
 .emoji-picker-btn {
-    width: 40px;
-    height: 40px;
-    padding: 0;
+    width: 100%;
+    height: auto;
+    padding: 10px 14px;
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: var(--radius);
     color: var(--text-primary);
     font-family: 'Inter', sans-serif;
-    font-size: 18px;
+    font-size: 16px;
     cursor: pointer;
     transition: var(--transition);
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    gap: 8px;
 }
 
 .emoji-picker-btn:hover {
@@ -588,17 +606,17 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 .emoji-picker-menu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    margin-top: 8px;
+    position: relative;
+    top: auto;
+    left: auto;
+    margin-top: 0;
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: var(--radius);
     padding: 8px;
     z-index: 1000;
-    box-shadow: var(--shadow-md);
-    min-width: 280px;
+    box-shadow: none;
+    min-width: 100%;
     max-height: none;
     overflow-y: visible;
     scrollbar-width: none;
@@ -622,7 +640,7 @@ body::-webkit-scrollbar-thumb:hover {
 
 .emoji-picker-grid {
     display: grid;
-    grid-template-columns: repeat(8, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 8px;
 }
 
@@ -1226,7 +1244,7 @@ body::-webkit-scrollbar-thumb:hover {
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     width: 100%;
-    max-width: 360px;
+    max-width: 500px;
     box-shadow: 0 20px 60px rgba(99, 102, 241, 0.25), var(--shadow-lg);
     animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
@@ -1506,4 +1524,26 @@ input[type="date"]:focus {
 .confirm-footer {
     gap: 12px;
     padding: 20px 24px;
+}
+/* ============================================================================
+   VISIBILITY HELPER CLASSES (CSP-compliant)
+   ============================================================================ */
+.hidden {
+    display: none !important;
+}
+
+.visible {
+    display: block !important;
+}
+
+.flex-visible {
+    display: flex !important;
+}
+
+.fade-out {
+    opacity: 0;
+}
+
+.scale-down {
+    transform: scale(0.95);
 }

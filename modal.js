@@ -67,10 +67,10 @@ class ModalManager {
         // Set dialog type styling
         this.modalElement.setAttribute('data-type', type);
         if (type === 'alert') {
-            if (cancelBtn) cancelBtn.style.display = 'none';
+            if (cancelBtn) cancelBtn.classList.add('hidden');
             if (confirmBtn) confirmBtn.className = 'btn btn-primary';
         } else {
-            if (cancelBtn) cancelBtn.style.display = '';
+            if (cancelBtn) cancelBtn.classList.remove('hidden');
             if (confirmBtn) confirmBtn.className = 'btn btn-danger';
         }
 
@@ -159,7 +159,7 @@ class ModalManager {
      */
     open() {
         if (this.modalElement) {
-            this.modalElement.style.display = 'flex';
+            this.modalElement.classList.remove('hidden');
             this.currentModal = this;
         }
     }
@@ -169,7 +169,7 @@ class ModalManager {
      */
     close() {
         if (this.modalElement) {
-            this.modalElement.style.display = 'none';
+            this.modalElement.classList.add('hidden');
             this.currentModal = null;
         }
     }
@@ -179,7 +179,7 @@ class ModalManager {
      */
     toggle() {
         if (this.modalElement) {
-            if (this.modalElement.style.display === 'none') {
+            if (this.modalElement.classList.contains('hidden')) {
                 this.open();
             } else {
                 this.close();
@@ -192,7 +192,7 @@ class ModalManager {
      * @returns {boolean} True if modal is open
      */
     isOpen() {
-        return this.modalElement && this.modalElement.style.display !== 'none';
+        return this.modalElement && !this.modalElement.classList.contains('hidden');
     }
 }
 
@@ -212,7 +212,7 @@ class Modal {
      */
     open() {
         if (this.element) {
-            this.element.style.display = 'flex';
+            this.element.classList.remove('hidden');
             this.element.classList.add('open');
         }
     }
@@ -222,7 +222,7 @@ class Modal {
      */
     close() {
         if (this.element) {
-            this.element.style.display = 'none';
+            this.element.classList.add('hidden');
             this.element.classList.remove('open');
         }
     }
@@ -245,7 +245,7 @@ class Modal {
      * @returns {boolean} True if modal is open
      */
     isOpen() {
-        return this.element && this.element.style.display !== 'none';
+        return this.element && !this.element.classList.contains('hidden');
     }
 
     /**
