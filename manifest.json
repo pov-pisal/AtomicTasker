@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Atomic Tasker",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Build consistent habits, one task at a time. Privacy-first task manager with automatic cross-device sync.",
   "short_name": "Atomic Tasker",
   "permissions": ["storage"],
