@@ -367,6 +367,9 @@ function addTask(text, categoryId, notes = '', link = '', dueDate = '', priority
         return;
     }
 
+    // Sanitize URL to prevent security vulnerabilities
+    const sanitizedLink = validateAndSanitizeUrl(link);
+
     // Create task object with all required properties
     const task = {
         id: Date.now(), // Unique ID based on timestamp
@@ -374,7 +377,7 @@ function addTask(text, categoryId, notes = '', link = '', dueDate = '', priority
         completed: false,
         categoryId: categoryId || null,
         notes: notes,
-        link: link,
+        link: sanitizedLink,
         dueDate: dueDate,
         priority: priority || 'medium',
         completedAt: null,
@@ -557,7 +560,7 @@ function saveTaskEdits() {
         task.text = newText;
         task.categoryId = newCategoryId || null;
         task.notes = newNotes;
-        task.link = newLink;
+        task.link = validateAndSanitizeUrl(newLink);
         task.dueDate = newDueDate;
         task.priority = newPriority;
         task.modifiedAt = new Date().toISOString();
@@ -609,7 +612,7 @@ function getCategoryLabel(categoryId) {
     if (!categoryId) return '';
     const category = state.categories.find((c) => c.id === categoryId);
     if (!category) return '';
-    return category.emoji ? `${category.emoji} ${category.name}` : category.name;
+    return category.emoji ? `${category.emoji} ${escapeHtml(category.name)}` : escapeHtml(category.name);
 }
 
 /**
@@ -887,7 +890,8 @@ function renderTasks() {
         let linkDisplay = '';
         if (task.link) {
             const isValidUrl = task.link.startsWith('http://') || task.link.startsWith('https://');
-            linkDisplay = `<a href="${task.link}" class="task-link" target="_blank" rel="noopener noreferrer" ${isValidUrl ? '' : 'disabled'}>🔗 Link</a>`;
+            const escapedUrl = escapeHtml(task.link);
+            linkDisplay = `<a href="${escapedUrl}" class="task-link" target="_blank" rel="noopener noreferrer" ${isValidUrl ? '' : 'disabled'}>🔗 Link</a>`;
         }
         
         // Notes preview if exists
@@ -957,23 +961,25 @@ function renderCategories() {
     state.categories.forEach((category) => {
         const categoryTag = document.createElement('div');
         categoryTag.className = 'category-tag';
-        categoryTag.innerHTML = `
-            <span>${category.emoji} ${escapeHtml(category.name)}</span>
-            <button 
-                class="edit-category-btn" 
-                data-category-id="${category.id}"
-                title="Edit category"
-            >
-                ✏️
-            </button>
-            <button 
-                class="delete-category-btn" 
-                data-category-id="${category.id}"
-                title="Delete category"
-            >
-                🗑️
-            </button>
-        `;
+        
+        const categorySpan = document.createElement('span');
+        categorySpan.textContent = category.emoji ? `${category.emoji} ${category.name}` : category.name;
+        
+        const editBtn = document.createElement('button');
+        editBtn.className = 'edit-category-btn';
+        editBtn.dataset.categoryId = category.id;
+        editBtn.title = 'Edit category';
+        editBtn.textContent = '✏️';
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-category-btn';
+        deleteBtn.dataset.categoryId = category.id;
+        deleteBtn.title = 'Delete category';
+        deleteBtn.textContent = '🗑️';
+        
+        categoryTag.appendChild(categorySpan);
+        categoryTag.appendChild(editBtn);
+        categoryTag.appendChild(deleteBtn);
         categoriesList.appendChild(categoryTag);
     });
 }
@@ -1087,7 +1093,8 @@ function renderCompletedTasks() {
         let linkDisplay = '';
         if (task.link) {
             const isValidUrl = task.link.startsWith('http://') || task.link.startsWith('https://');
-            linkDisplay = `<a href="${task.link}" class="task-link" target="_blank" rel="noopener noreferrer" ${isValidUrl ? '' : 'disabled'}>🔗 Link</a>`;
+            const escapedUrl = escapeHtml(task.link);
+            linkDisplay = `<a href="${escapedUrl}" class="task-link" target="_blank" rel="noopener noreferrer" ${isValidUrl ? '' : 'disabled'}>🔗 Link</a>`;
         }
         
         // Notes preview if exists
@@ -1558,6 +1565,44 @@ function updateSyncStatusUI(status) {
     };
 
     syncStatusText.textContent = statusMessages[status] || status;
+}
+
+/**
+ * Validate and sanitize URLs to prevent javascript: and data: protocol attacks
+ * @param {string} url - The URL to validate
+ * @returns {string} - Sanitized URL or empty string if invalid
+ */
+function validateAndSanitizeUrl(url) {
+    if (!url) return '';
+    
+    const trimmed = url.trim();
+    
+    // Block dangerous protocols
+    if (trimmed.toLowerCase().startsWith('javascript:') || 
+        trimmed.toLowerCase().startsWith('data:') ||
+        trimmed.toLowerCase().startsWith('vbscript:')) {
+        console.warn('Blocked potentially dangerous URL protocol');
+        return '';
+    }
+    
+    // Only allow http and https protocols
+    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+        // If it looks like a URL without protocol, add https://
+        if (trimmed.includes('.') && !trimmed.includes(' ')) {
+            return 'https://' + trimmed;
+        }
+        // Otherwise reject
+        return '';
+    }
+    
+    // Additional check: try to parse as URL to ensure it's valid
+    try {
+        new URL(trimmed);
+        return trimmed;
+    } catch (e) {
+        console.warn('Invalid URL format:', trimmed);
+        return '';
+    }
 }
 
 /**
