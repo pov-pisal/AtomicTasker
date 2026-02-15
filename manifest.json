@@ -1,12 +1,12 @@
 {
   "manifest_version": 3,
   "name": "Atomic Tasker",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Build consistent habits, one task at a time. Privacy-first task manager with automatic cross-device sync.",
   "short_name": "Atomic Tasker",
   "permissions": ["storage"],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com"
+    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self'"
   },
   "action": {
     "default_popup": "popup.html",
@@ -22,6 +22,8 @@
     "48": "assets/specificity-svgrepo-com-64.png",
     "128": "assets/specificity-svgrepo-com-128.png",
     "256": "assets/specificity-svgrepo-com-256.png"
-  }
+  },
+  "minimum_chrome_version": "88",
+  "homepage_url": "https://github.com/povpisal/AtomicTasker"
 }
 

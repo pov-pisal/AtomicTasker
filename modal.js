@@ -95,11 +95,19 @@ class ModalManager {
 
         // Close on backdrop click for alerts
         if (type === 'alert') {
-            this.modalElement.onclick = (e) => {
+            // Remove any existing backdrop click handler
+            const oldHandler = this.modalElement._backdropHandler;
+            if (oldHandler) {
+                this.modalElement.removeEventListener('click', oldHandler);
+            }
+            
+            const backdropHandler = (e) => {
                 if (e.target === this.modalElement) {
                     this.close();
                 }
             };
+            this.modalElement._backdropHandler = backdropHandler;
+            this.modalElement.addEventListener('click', backdropHandler);
         }
 
         this.open();
