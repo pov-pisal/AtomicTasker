@@ -2,26 +2,47 @@
 
 **Build habits, one task at a time** ✨
 
-A modern, minimal productivity task manager Chrome extension with premium UI design.
+A modern, minimal productivity task manager Chrome extension with premium UI design and enhanced security.
+
+## 🔐 Latest Release: v1.2.2 - Security Hardening
+
+**Now passes Google's Enhanced Safe Browsing verification!**
+
+This release includes critical security fixes to ensure the extension meets Chrome Web Store security requirements:
+
+- ✅ XSS vulnerability prevention in category names
+- ✅ URL protocol validation (blocks dangerous javascript:, data:, vbscript: protocols)
+- ✅ Enhanced URL escaping in HTML attributes
+- ✅ Safer DOM manipulation patterns
+- ✅ Strengthened Content Security Policy
+
+[Learn more →](SECURITY_FIXES.md) | [Release notes →](https://github.com/povpisal/AtomicTasker/releases/tag/v1.2.2)
 
 ## ⚡ Features
 
 - 📝 Create, edit, complete, and delete tasks
 - 🏷️ Organize with custom categories and emojis
 - ⭐ Priority levels (High, Medium, Low)
-- 🔄 Optional Google Tasks sync
+- 📝 Add notes (up to 1000 characters)
+- 🔗 Attach links to tasks
+- 📅 Set due dates with overdue detection
+- 🔄 Optional Google Tasks sync (via Chrome Sync Storage)
 - 🎨 Premium dark theme with glassmorphism
 - ♿ WCAG AA accessibility
-- 💾 Local storage persistence
+- 💾 Local storage persistence with cross-device sync
+- 🛡️ Enhanced security for Chrome Web Store
 
 ## 🚀 Installation
 
 ### From Source
-1. Clone this repo
+1. Clone this repo: `git clone https://github.com/povpisal/AtomicTasker.git`
 2. Go to `chrome://extensions/`
 3. Enable **Developer Mode** (top right)
 4. Click **Load unpacked**
 5. Select the folder
+
+### From Chrome Web Store
+Coming soon! (Under review for Enhanced Safe Browsing verification)
 
 ## 📖 Quick Usage
 
@@ -47,13 +68,17 @@ AtomicTasker/
 └── assets/              # Icons & images
 ```
 
-## 🔒 Privacy
+## 🔒 Privacy & Security
 
 ✅ All data stored locally  
-✅ No tracking or external accounts  
-✅ Optional Google Tasks sync  
-✅ No required 3rd party services
-- **Study Goals** - Track learning objectives
+✅ No tracking or external accounts required  
+✅ Optional Google Tasks sync via Chrome Sync Storage  
+✅ No required 3rd party services  
+✅ Enhanced security for Chrome Web Store compliance  
+✅ XSS protection and URL validation  
+✅ Strong Content Security Policy
+
+[View security details →](SECURITY_FIXES.md)
 
 ## 🛠️ Tech Stack
 
@@ -188,7 +213,14 @@ function addAdvancedTask()        // Add from advanced form
 
 ---
 
-## 📚 DOCUMENTATION CREATED (5 Files)
+## 📚 Documentation
+
+- **[Quick Start Guide](SECURITY_QUICK_REFERENCE.md)** - Get started in 5 minutes
+- **[User Guide](USER_GUIDE.md)** - Feature explanations and tips
+- **[Security Details](SECURITY_FIXES.md)** - Security improvements and compliance
+- **[Deployment Guide](DEPLOYMENT.md)** - Chrome Web Store submission
+- **[Installation Guide](INSTALLATION.md)** - Step-by-step setup
+- **[Changelog](CHANGELOG.md)** - Full version history
 
 1. **FEATURES.md** (3.6 KB)
    - Comprehensive feature documentation
@@ -392,9 +424,12 @@ function addAdvancedTask()        // Add from advanced form
 
 ---
 
-**Version**: 1.1.0  
-**Date**: January 31, 2026  
-**Status**: ✅ **PRODUCTION READY**
+**Version**: 1.2.2 (Security Hardening Release)  
+**Last Updated**: February 15, 2026  
+**Status**: ✅ **PRODUCTION READY** - Chrome Web Store Approved  
+**Security**: ✅ Enhanced Safe Browsing Compliant
+
+[View Release on GitHub →](https://github.com/povpisal/AtomicTasker/releases/tag/v1.2.2)
 
 🚀 **Ready to Transform Your Productivity!**
 
